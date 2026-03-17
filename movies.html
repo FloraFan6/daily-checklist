@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Movie Diary</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
@@ -15,6 +15,87 @@
     padding: 40px 20px;
     padding-top: 70px;
     overflow-x: hidden;
+    transition: background 0.5s, color 0.4s;
+  }
+
+  /* ---- Dark mode ---- */
+  body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #e0e0e0;
+  }
+  body.dark-mode .top-nav { background: rgba(20,20,40,0.85); border-bottom-color: rgba(255,255,255,0.06); }
+  body.dark-mode .nav-link { color: #8888aa; }
+  body.dark-mode .nav-link.active { color: #c4b5fd; background: rgba(167,139,250,0.15); }
+  body.dark-mode .movie-card { background: rgba(30,30,50,0.7); border-color: rgba(255,255,255,0.08); }
+  body.dark-mode .movie-title { color: #e0e0e0; }
+  body.dark-mode .add-movie-form { background: rgba(30,30,50,0.7); border-color: rgba(255,255,255,0.08); }
+  body.dark-mode .mode-toggle, body.dark-mode .filter-bar { background: rgba(30,30,50,0.5); border-color: rgba(255,255,255,0.06); }
+  body.dark-mode .mode-toggle button.active, body.dark-mode .filter-bar button.active { background: rgba(60,60,90,0.8); color: #c4b5fd; }
+  body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.1); color: #e0e0e0; }
+  body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #666; }
+  body.dark-mode .modal { background: #1a1a2e; color: #e0e0e0; }
+  body.dark-mode .modal h2 { color: #e0e0e0; }
+  body.dark-mode .note-entry { background: rgba(167,139,250,0.1); }
+  body.dark-mode .note-text { color: #e0e0e0; }
+  body.dark-mode .movie-actions button { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.08); color: #aaa; }
+  body.dark-mode .user-bar .user-name { color: #aaa; }
+  body.dark-mode .signout-btn { background: rgba(30,30,50,0.6); color: #8888aa; border-color: rgba(255,255,255,0.06); }
+  body.dark-mode .settings-panel { background: rgba(30,30,50,0.7); border-color: rgba(255,255,255,0.08); }
+  body.dark-mode .google-signin-btn { background: rgba(30,30,50,0.7); border-color: rgba(255,255,255,0.08); color: #e0e0e0; }
+  body.dark-mode h1 { background: linear-gradient(135deg, #c4b5fd, #f0abfc); -webkit-background-clip: text; background-clip: text; }
+  body.dark-mode .poster-fallback { background: linear-gradient(135deg, #2d2250, #1e1a3a); }
+  body.dark-mode .access-denied { background: rgba(239,68,68,0.1); }
+
+  /* Dark mode toggle */
+  .dark-toggle {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9500;
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px); font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .dark-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(0,0,0,0.15); }
+  body.dark-mode .dark-toggle { background: rgba(30,30,50,0.8); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+
+  /* Page fade-in */
+  .page-fade { animation: pageFadeIn 0.5s ease-out; }
+  @keyframes pageFadeIn {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .page-fade-out { animation: pageFadeOut 0.25s ease-in forwards; }
+  @keyframes pageFadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  /* Cat loading spinner */
+  .cat-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 16px; }
+  .cat-loader .walking-cat { font-size: 36px; animation: catWalk 1.2s ease-in-out infinite; }
+  @keyframes catWalk {
+    0% { transform: translateX(-20px) scaleX(1); }
+    49% { transform: translateX(20px) scaleX(1); }
+    50% { transform: translateX(20px) scaleX(-1); }
+    99% { transform: translateX(-20px) scaleX(-1); }
+    100% { transform: translateX(-20px) scaleX(1); }
+  }
+  .cat-loader .loader-dots { font-size: 14px; color: #aeaeb2; animation: dotPulse 1.5s ease-in-out infinite; }
+  @keyframes dotPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* 3D tilt on movie cards */
+  .movie-card {
+    transform-style: preserve-3d;
+    perspective: 800px;
+    transition: all 0.3s ease;
+  }
+
+  /* Confetti celebration */
+  .celebration { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 9999; }
+  .confetti-cat { position: absolute; animation: confettiFall 2s ease-in forwards; opacity: 0; }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(0.8); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
   }
 
   /* ---- Top navigation bar ---- */
@@ -62,35 +143,7 @@
     font-weight: 600;
   }
 
-  /* Cat cursor */
-  .cat-cursor {
-    position: fixed;
-    pointer-events: none;
-    z-index: 99999;
-    font-size: 28px;
-    transform: translate(-14px, -14px);
-    transition: transform 0.05s ease-out;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-  }
-
-  .cat-cursor.clicking {
-    transform: translate(-14px, -14px) scale(1.3);
-  }
-
-  /* Floating paw prints */
-  .paw-trail {
-    position: fixed;
-    pointer-events: none;
-    z-index: 99998;
-    font-size: 14px;
-    opacity: 0;
-    animation: pawFade 1s ease-out forwards;
-  }
-
-  @keyframes pawFade {
-    0% { opacity: 0.6; transform: scale(1) rotate(var(--rot)); }
-    100% { opacity: 0; transform: scale(0.5) rotate(var(--rot)); }
-  }
+  /* Cat cursor - replaced by oneko.js */
 
   /* Decorative floating cats */
   .floating-decor {
@@ -175,7 +228,7 @@
     font-size: 16px;
     font-weight: 600;
     font-family: inherit;
-    cursor: none;
+
     color: #2c2c2e;
     transition: all 0.25s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -203,6 +256,14 @@
   .access-denied strong { display: block; margin-bottom: 4px; }
 
   /* ---- Top user bar ---- */
+  .welcome-greeting {
+    text-align: center; font-size: 18px; font-weight: 600; padding: 14px 0 6px;
+    color: #7c5cbf; letter-spacing: 0.3px; animation: greetFadeIn 0.8s ease;
+  }
+  .welcome-greeting .greeting-emoji { font-size: 22px; }
+  @keyframes greetFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  body.dark-mode .welcome-greeting { color: #c4a8ff; }
+
   .user-bar {
     display: flex;
     align-items: center;
@@ -231,7 +292,7 @@
     border-radius: 8px;
     font-size: 12px;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.2s;
   }
@@ -261,7 +322,7 @@
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.25s;
   }
@@ -309,7 +370,7 @@
     backdrop-filter: blur(20px);
     outline: none;
     transition: all 0.25s;
-    cursor: none;
+
   }
 
   .add-movie-form input:focus,
@@ -336,7 +397,7 @@
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
     transition: all 0.25s;
     box-shadow: 0 4px 14px rgba(167,139,250,0.35);
@@ -381,7 +442,7 @@
     font-size: 13px;
     font-weight: 500;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.25s;
   }
@@ -517,7 +578,7 @@
     border-radius: 8px;
     font-size: 11px;
     font-family: inherit;
-    cursor: none;
+
     color: #6b6b6f;
     transition: all 0.2s;
   }
@@ -574,7 +635,7 @@
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     padding: 28px;
-    cursor: none;
+
   }
 
   .modal h2 {
@@ -643,7 +704,7 @@
     outline: none;
     resize: vertical;
     min-height: 50px;
-    cursor: none;
+
   }
 
   .add-note-form textarea:focus {
@@ -659,7 +720,7 @@
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
     align-self: flex-end;
   }
@@ -675,7 +736,7 @@
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.2s;
   }
@@ -709,7 +770,7 @@
     font-size: 14px;
     font-family: inherit;
     outline: none;
-    cursor: none;
+
     background: rgba(255,255,255,0.75);
   }
 
@@ -728,7 +789,7 @@
 
   .score-star {
     font-size: 24px;
-    cursor: none;
+
     background: none;
     border: none;
     padding: 2px;
@@ -755,7 +816,7 @@
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
   }
 
@@ -787,7 +848,7 @@
     border-radius: 12px;
     font-size: 13px;
     font-family: inherit;
-    cursor: none;
+
     color: #6b6b6f;
     transition: all 0.2s;
     margin-top: 12px;
@@ -814,7 +875,7 @@
     font-family: inherit;
     background: rgba(255,255,255,0.75);
     outline: none;
-    cursor: none;
+
   }
 
   .add-member-form input:focus {
@@ -830,7 +891,7 @@
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
   }
 
@@ -855,7 +916,7 @@
     border: none;
     color: #d1c4e9;
     font-size: 16px;
-    cursor: none;
+
     padding: 2px 6px;
     border-radius: 6px;
     transition: all 0.2s;
@@ -876,7 +937,7 @@
     font-weight: 600;
   }
 
-  /* Loading spinner */
+  /* Loading spinner - cat walking */
   .loading {
     text-align: center;
     padding: 40px;
@@ -884,25 +945,22 @@
     font-size: 15px;
   }
 
-  .loading::after {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2.5px solid #d1c4e9;
-    border-top-color: #a78bfa;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-left: 10px;
-    vertical-align: middle;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .loading::before {
+    content: '\1F408\200D\2B1B';
+    display: block;
+    font-size: 32px;
+    margin-bottom: 8px;
+    animation: catWalk 1.2s ease-in-out infinite;
   }
 </style>
 </head>
-<body>
+<body class="page-fade">
+
+<!-- Dark mode toggle -->
+<button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">&#x1F63A;</button>
+
+<!-- Celebration container -->
+<div class="celebration" id="celebration"></div>
 
 <!-- Top navigation bar -->
 <nav class="top-nav" id="topNav" style="display:none;">
@@ -918,8 +976,8 @@
 <div class="floating-decor">&#x1F43E;</div>
 <div class="floating-decor">&#x1F408;&#x200D;&#x2B1B;</div>
 
-<!-- Custom cat cursor -->
-<div class="cat-cursor" id="catCursor">&#x1F408;&#x200D;&#x2B1B;</div>
+<!-- Oneko cat -->
+<script src="./oneko.js"></script>
 
 <!-- Login screen -->
 <div class="login-screen" id="loginScreen" style="display:none;">
@@ -944,6 +1002,8 @@
     <span class="user-name" id="userName"></span>
     <button class="signout-btn" onclick="signOut()">Sign out</button>
   </div>
+
+  <div id="welcomeGreeting" class="welcome-greeting"></div>
 
   <header>
     <span class="header-icon">&#x1F3AC;</span>
@@ -978,7 +1038,7 @@
         <button type="button" class="score-star" onclick="setAddScore(5)">&#x2B50;</button>
       </span>
       <span style="font-size:13px; color:#8e8e93; white-space:nowrap; margin-left:auto;">Watched:</span>
-      <input type="date" id="movieWatchedDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; cursor:none; width:140px;">
+      <input type="date" id="movieWatchedDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; width:140px;">
     </div>
     <div class="form-row">
       <textarea id="movieNotes" placeholder="Notes or thoughts... (optional)"></textarea>
@@ -1145,6 +1205,15 @@
       document.getElementById('topNav').style.display = 'block';
       document.getElementById('userAvatar').src = user.photoURL || '';
       document.getElementById('userName').textContent = user.displayName || user.email;
+      // Welcome greeting
+      (function() {
+        var nicknames = { 'florafan26@gmail.com': 'XIXI', 'h.han.working@gmail.com': 'HANHAN' };
+        var name = nicknames[user.email.toLowerCase()] || (user.displayName || 'friend');
+        var h = new Date().getHours();
+        var timeGreet = h < 6 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+        var emoji = h < 6 ? '🌙' : h < 12 ? '🌸' : h < 18 ? '☀️' : '🌙';
+        document.getElementById('welcomeGreeting').innerHTML = '<span class="greeting-emoji">' + emoji + '</span> ' + timeGreet + ', ' + name + '!';
+      })();
       const isOwner = user.email === OWNER_EMAIL;
       document.getElementById('settingsToggleBtn').style.display = isOwner ? 'block' : 'none';
       document.getElementById('settingsPanel').classList.add('hidden');
@@ -1340,6 +1409,7 @@
       update.watchedDate = '';
     }
     await updateDoc(doc(db, moviesCollectionPath(), id), update);
+    if (newVal && window.celebrateCats) celebrateCats();
   };
 
   window.deleteMovie = async function(id) {
@@ -1544,36 +1614,79 @@
   };
 </script>
 
-<!-- Cat cursor -->
 <script>
-  const cursorEl = document.getElementById('catCursor');
-  let lastX = 0;
-
+  // 3D tilt on movie cards
   document.addEventListener('mousemove', e => {
-    cursorEl.style.left = e.clientX + 'px';
-    cursorEl.style.top = e.clientY + 'px';
-    if (e.clientX < lastX) {
-      cursorEl.style.transform = 'translate(-14px, -14px) scaleX(-1)';
-    } else if (e.clientX > lastX) {
-      cursorEl.style.transform = 'translate(-14px, -14px) scaleX(1)';
+    const card = e.target.closest('.movie-card');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(800px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateY(-4px)`;
+  });
+  document.addEventListener('mouseleave', e => {
+    if (e.target.classList && e.target.classList.contains('movie-card')) {
+      e.target.style.transform = '';
     }
-    lastX = e.clientX;
-    if (Math.random() < 0.08) {
-      const paw = document.createElement('div');
-      paw.className = 'paw-trail';
-      paw.textContent = '\uD83D\uDC3E';
-      paw.style.left = (e.clientX - 7 + (Math.random() * 10 - 5)) + 'px';
-      paw.style.top = (e.clientY - 7 + (Math.random() * 10 - 5)) + 'px';
-      paw.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
-      document.body.appendChild(paw);
-      setTimeout(() => paw.remove(), 1000);
+  }, true);
+  document.addEventListener('mouseout', e => {
+    const card = e.target.closest('.movie-card');
+    if (card && !card.contains(e.relatedTarget)) {
+      card.style.transform = '';
     }
   });
 
-  document.addEventListener('mousedown', () => cursorEl.classList.add('clicking'));
-  document.addEventListener('mouseup', () => cursorEl.classList.remove('clicking'));
-  document.addEventListener('mouseleave', () => cursorEl.style.display = 'none');
-  document.addEventListener('mouseenter', () => cursorEl.style.display = 'block');
+  // Dark mode toggle
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark ? '1' : '0');
+    document.getElementById('darkToggle').textContent = isDark ? '\uD83D\uDE3E' : '\uD83D\uDE3A';
+  }
+  if (localStorage.getItem('darkMode') === '1') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkToggle').textContent = '\uD83D\uDE3E';
+  }
+
+  // Confetti cats celebration
+  window.celebrateCats = function() {
+    const container = document.getElementById('celebration');
+    const cats = ['\uD83D\uDC08\u200D\u2B1B', '\uD83D\uDC3E', '\u2B50', '\uD83C\uDF1F', '\uD83C\uDFAC', '\uD83C\uDF89'];
+    for (let i = 0; i < 15; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-cat';
+      el.textContent = cats[Math.floor(Math.random() * cats.length)];
+      el.style.left = Math.random() * 100 + '%';
+      el.style.top = '-30px';
+      el.style.fontSize = (16 + Math.random() * 24) + 'px';
+      el.style.animationDelay = (Math.random() * 0.8) + 's';
+      el.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+  };
+
+  // Smooth page transitions on nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      if (this.classList.contains('active')) { e.preventDefault(); return; }
+      e.preventDefault();
+      const href = this.getAttribute('href');
+      document.body.classList.remove('page-fade');
+      document.body.classList.add('page-fade-out');
+      setTimeout(() => { window.location.href = href; }, 250);
+    });
+  });
+</script>
+<script>
+  // Random Hello Kitty cursor on each page load
+  (function() {
+    var cursors = ['01kitty_32.png','03kitty_32.png','04kitty_32.png','05kitty_32.png','06kitty_32.png','07kitty_32.png','08kitty_32.png','09kitty_32.png'];
+    var pick = cursors[Math.floor(Math.random() * cursors.length)];
+    var style = document.createElement('style');
+    style.textContent = '*, *::before, *::after { cursor: url(./cursors/' + pick + '), auto !important; }';
+    document.head.appendChild(style);
+  })();
 </script>
 </body>
 </html>

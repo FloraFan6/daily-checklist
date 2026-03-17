@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Checklist</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
@@ -15,6 +15,103 @@
     padding: 40px 20px;
     padding-top: 70px;
     overflow-x: hidden;
+    transition: background 0.5s, color 0.4s;
+  }
+
+  /* ---- Dark mode ---- */
+  body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #e0e0e0;
+  }
+  body.dark-mode .top-nav { background: rgba(20,20,40,0.85); border-bottom-color: rgba(255,255,255,0.06); }
+  body.dark-mode .nav-link { color: #8888aa; }
+  body.dark-mode .nav-link.active { color: #c4b5fd; background: rgba(167,139,250,0.15); }
+  body.dark-mode .container { color: #e0e0e0; }
+  body.dark-mode .chart-card,
+  body.dark-mode .add-form,
+  body.dark-mode .settings-panel,
+  body.dark-mode .template-btn,
+  body.dark-mode .google-signin-btn { background: rgba(30,30,50,0.7); border-color: rgba(255,255,255,0.08); color: #e0e0e0; }
+  body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.1); color: #e0e0e0; }
+  body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #666; }
+  body.dark-mode .mode-toggle, body.dark-mode .view-toggle { background: rgba(30,30,50,0.5); border-color: rgba(255,255,255,0.06); }
+  body.dark-mode .mode-toggle button.active, body.dark-mode .view-toggle button.active { background: rgba(60,60,90,0.8); color: #c4b5fd; }
+  body.dark-mode .item-card { background: rgba(30,30,50,0.65); border-color: rgba(255,255,255,0.08); }
+  body.dark-mode .item-text { color: #e0e0e0; }
+  body.dark-mode .item-time { color: #8888aa; }
+  body.dark-mode .user-bar .user-name { color: #aaa; }
+  body.dark-mode .signout-btn { background: rgba(30,30,50,0.6); color: #8888aa; border-color: rgba(255,255,255,0.06); }
+  body.dark-mode h1 { background: linear-gradient(135deg, #c4b5fd, #f0abfc); -webkit-background-clip: text; background-clip: text; }
+  body.dark-mode .date-nav button { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.08); color: #c4b5fd; }
+  body.dark-mode .timeline-hour-label { color: #666; }
+  body.dark-mode .timeline-row { border-bottom-color: rgba(255,255,255,0.04); }
+  body.dark-mode .access-denied { background: rgba(239,68,68,0.1); }
+
+  /* Dark mode toggle */
+  .dark-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9500;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .dark-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(0,0,0,0.15); }
+  body.dark-mode .dark-toggle { background: rgba(30,30,50,0.8); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+
+  /* ---- Page fade-in ---- */
+  .page-fade { animation: pageFadeIn 0.5s ease-out; }
+  @keyframes pageFadeIn {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Page fade-out for navigation */
+  .page-fade-out { animation: pageFadeOut 0.25s ease-in forwards; }
+  @keyframes pageFadeOut {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  /* ---- Cat loading spinner ---- */
+  .cat-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+  }
+  .cat-loader .walking-cat {
+    font-size: 36px;
+    animation: catWalk 1.2s ease-in-out infinite;
+  }
+  @keyframes catWalk {
+    0% { transform: translateX(-20px) scaleX(1); }
+    49% { transform: translateX(20px) scaleX(1); }
+    50% { transform: translateX(20px) scaleX(-1); }
+    99% { transform: translateX(-20px) scaleX(-1); }
+    100% { transform: translateX(-20px) scaleX(1); }
+  }
+  .cat-loader .loader-dots {
+    font-size: 14px;
+    color: #aeaeb2;
+    animation: dotPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes dotPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
   }
 
   /* ---- Top navigation bar ---- */
@@ -62,35 +159,7 @@
     font-weight: 600;
   }
 
-  /* Cat cursor */
-  .cat-cursor {
-    position: fixed;
-    pointer-events: none;
-    z-index: 99999;
-    font-size: 28px;
-    transform: translate(-14px, -14px);
-    transition: transform 0.05s ease-out;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-  }
-
-  .cat-cursor.clicking {
-    transform: translate(-14px, -14px) scale(1.3);
-  }
-
-  /* Floating paw prints */
-  .paw-trail {
-    position: fixed;
-    pointer-events: none;
-    z-index: 99998;
-    font-size: 14px;
-    opacity: 0;
-    animation: pawFade 1s ease-out forwards;
-  }
-
-  @keyframes pawFade {
-    0% { opacity: 0.6; transform: scale(1) rotate(var(--rot)); }
-    100% { opacity: 0; transform: scale(0.5) rotate(var(--rot)); }
-  }
+  /* Cat cursor - replaced by oneko.js */
 
   .container {
     max-width: 660px;
@@ -137,7 +206,7 @@
     background: rgba(255,255,255,0.7);
     border: 1px solid rgba(0,0,0,0.06);
     font-size: 18px;
-    cursor: none;
+
     color: #7c5cbf;
     padding: 6px 12px;
     border-radius: 10px;
@@ -270,7 +339,7 @@
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.25s;
   }
@@ -304,7 +373,7 @@
     backdrop-filter: blur(20px);
     outline: none;
     transition: all 0.25s;
-    cursor: none;
+
   }
 
   .add-form input[type="text"]:focus {
@@ -325,7 +394,7 @@
     backdrop-filter: blur(20px);
     outline: none;
     transition: all 0.25s;
-    cursor: none;
+
     color: #6b6b6f;
   }
 
@@ -349,7 +418,7 @@
     border-radius: 14px;
     font-size: 15px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
     transition: all 0.25s;
     box-shadow: 0 4px 14px rgba(167,139,250,0.35);
@@ -395,7 +464,7 @@
     height: 24px;
     border: 2.5px solid #d1c4e9;
     border-radius: 50%;
-    cursor: none;
+
     flex-shrink: 0;
     transition: all 0.25s;
     position: relative;
@@ -467,7 +536,7 @@
     border: none;
     color: #d1c4e9;
     font-size: 18px;
-    cursor: none;
+
     padding: 4px 8px;
     border-radius: 8px;
     transition: all 0.2s;
@@ -553,7 +622,7 @@
     height: 20px;
     border: 2.5px solid #c4b5e3;
     border-radius: 50%;
-    cursor: none;
+
     flex-shrink: 0;
     transition: all 0.25s;
     position: relative;
@@ -706,7 +775,7 @@
     border-radius: 12px;
     font-size: 13px;
     font-family: inherit;
-    cursor: none;
+
     color: #6b6b6f;
     transition: all 0.2s;
   }
@@ -795,7 +864,7 @@
     font-size: 16px;
     font-weight: 600;
     font-family: inherit;
-    cursor: none;
+
     color: #2c2c2e;
     transition: all 0.25s;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -823,6 +892,14 @@
   .access-denied strong { display: block; margin-bottom: 4px; }
 
   /* ---- Top user bar ---- */
+  .welcome-greeting {
+    text-align: center; font-size: 18px; font-weight: 600; padding: 14px 0 6px;
+    color: #7c5cbf; letter-spacing: 0.3px; animation: greetFadeIn 0.8s ease;
+  }
+  .welcome-greeting .greeting-emoji { font-size: 22px; }
+  @keyframes greetFadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  body.dark-mode .welcome-greeting { color: #c4a8ff; }
+
   .user-bar {
     display: flex;
     align-items: center;
@@ -851,7 +928,7 @@
     border-radius: 8px;
     font-size: 12px;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.2s;
   }
@@ -881,7 +958,7 @@
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    cursor: none;
+
     color: #8e8e93;
     transition: all 0.25s;
   }
@@ -925,7 +1002,7 @@
     border-radius: 12px;
     font-size: 13px;
     font-family: inherit;
-    cursor: none;
+
     color: #6b6b6f;
     transition: all 0.2s;
     margin-top: 12px;
@@ -952,7 +1029,7 @@
     font-family: inherit;
     background: rgba(255,255,255,0.75);
     outline: none;
-    cursor: none;
+
   }
 
   .add-member-form input:focus {
@@ -968,7 +1045,7 @@
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    cursor: none;
+
     font-family: inherit;
   }
 
@@ -993,7 +1070,7 @@
     border: none;
     color: #d1c4e9;
     font-size: 16px;
-    cursor: none;
+
     padding: 2px 6px;
     border-radius: 6px;
     transition: all 0.2s;
@@ -1014,7 +1091,7 @@
     font-weight: 600;
   }
 
-  /* Loading spinner */
+  /* Loading spinner - cat walking */
   .loading {
     text-align: center;
     padding: 40px;
@@ -1022,25 +1099,19 @@
     font-size: 15px;
   }
 
-  .loading::after {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2.5px solid #d1c4e9;
-    border-top-color: #a78bfa;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-left: 10px;
-    vertical-align: middle;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .loading::before {
+    content: '\1F408\200D\2B1B';
+    display: block;
+    font-size: 32px;
+    margin-bottom: 8px;
+    animation: catWalk 1.2s ease-in-out infinite;
   }
 </style>
 </head>
-<body>
+<body class="page-fade">
+
+<!-- Dark mode toggle -->
+<button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">&#x1F63A;</button>
 
 <!-- Top navigation bar -->
 <nav class="top-nav" id="topNav" style="display:none;">
@@ -1056,8 +1127,8 @@
 <div class="floating-decor">&#x1F43E;</div>
 <div class="floating-decor">&#x1F408;&#x200D;&#x2B1B;</div>
 
-<!-- Custom cat cursor -->
-<div class="cat-cursor" id="catCursor">&#x1F408;&#x200D;&#x2B1B;</div>
+<!-- Oneko cat (replaces emoji cursor) -->
+<script src="./oneko.js"></script>
 
 <!-- Celebration container -->
 <div class="celebration" id="celebration"></div>
@@ -1085,6 +1156,8 @@
     <span class="user-name" id="userName"></span>
     <button class="signout-btn" onclick="signOut()">Sign out</button>
   </div>
+
+  <div id="welcomeGreeting" class="welcome-greeting"></div>
 
   <header>
     <span class="header-icon">&#x2705;</span>
@@ -1290,6 +1363,15 @@
       document.getElementById('topNav').style.display = 'block';
       document.getElementById('userAvatar').src = user.photoURL || '';
       document.getElementById('userName').textContent = user.displayName || user.email;
+      // Welcome greeting
+      (function() {
+        var nicknames = { 'florafan26@gmail.com': 'XIXI', 'h.han.working@gmail.com': 'HANHAN' };
+        var name = nicknames[user.email.toLowerCase()] || (user.displayName || 'friend');
+        var h = new Date().getHours();
+        var timeGreet = h < 6 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+        var emoji = h < 6 ? '🌙' : h < 12 ? '🌸' : h < 18 ? '☀️' : '🌙';
+        document.getElementById('welcomeGreeting').innerHTML = '<span class="greeting-emoji">' + emoji + '</span> ' + timeGreet + ', ' + name + '!';
+      })();
       // Only owner sees settings
       const isOwner = user.email === OWNER_EMAIL;
       document.getElementById('settingsToggleBtn').style.display = isOwner ? 'block' : 'none';
@@ -1649,34 +1731,40 @@
     }
   });
 
-  const cursorEl = document.getElementById('catCursor');
-  let lastX = 0;
+  // Dark mode toggle
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark ? '1' : '0');
+    document.getElementById('darkToggle').textContent = isDark ? '\uD83D\uDE3E' : '\uD83D\uDE3A';
+  }
+  // Restore dark mode preference
+  if (localStorage.getItem('darkMode') === '1') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkToggle').textContent = '\uD83D\uDE3E';
+  }
 
-  document.addEventListener('mousemove', e => {
-    cursorEl.style.left = e.clientX + 'px';
-    cursorEl.style.top = e.clientY + 'px';
-    if (e.clientX < lastX) {
-      cursorEl.style.transform = 'translate(-14px, -14px) scaleX(-1)';
-    } else if (e.clientX > lastX) {
-      cursorEl.style.transform = 'translate(-14px, -14px) scaleX(1)';
-    }
-    lastX = e.clientX;
-    if (Math.random() < 0.08) {
-      const paw = document.createElement('div');
-      paw.className = 'paw-trail';
-      paw.textContent = '\uD83D\uDC3E';
-      paw.style.left = (e.clientX - 7 + (Math.random() * 10 - 5)) + 'px';
-      paw.style.top = (e.clientY - 7 + (Math.random() * 10 - 5)) + 'px';
-      paw.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
-      document.body.appendChild(paw);
-      setTimeout(() => paw.remove(), 1000);
-    }
+  // Smooth page transitions on nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      if (this.classList.contains('active')) { e.preventDefault(); return; }
+      e.preventDefault();
+      const href = this.getAttribute('href');
+      document.body.classList.remove('page-fade');
+      document.body.classList.add('page-fade-out');
+      setTimeout(() => { window.location.href = href; }, 250);
+    });
   });
-
-  document.addEventListener('mousedown', () => cursorEl.classList.add('clicking'));
-  document.addEventListener('mouseup', () => cursorEl.classList.remove('clicking'));
-  document.addEventListener('mouseleave', () => cursorEl.style.display = 'none');
-  document.addEventListener('mouseenter', () => cursorEl.style.display = 'block');
+</script>
+<script>
+  // Random Hello Kitty cursor on each page load
+  (function() {
+    var cursors = ['01kitty_32.png','03kitty_32.png','04kitty_32.png','05kitty_32.png','06kitty_32.png','07kitty_32.png','08kitty_32.png','09kitty_32.png'];
+    var pick = cursors[Math.floor(Math.random() * cursors.length)];
+    var style = document.createElement('style');
+    style.textContent = '*, *::before, *::after { cursor: url(./cursors/' + pick + '), auto !important; }';
+    document.head.appendChild(style);
+  })();
 </script>
 </body>
 </html>
