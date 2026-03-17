@@ -45,6 +45,27 @@
   body.dark-mode h1 { background: linear-gradient(135deg, #c4b5fd, #f0abfc); -webkit-background-clip: text; background-clip: text; }
   body.dark-mode .poster-fallback { background: linear-gradient(135deg, #2d2250, #1e1a3a); }
   body.dark-mode .access-denied { background: rgba(239,68,68,0.1); }
+  body.dark-mode .movie-year { color: #8888aa; }
+  body.dark-mode .movie-notes-preview { color: #888; }
+  body.dark-mode .movie-score { color: #f59e0b; }
+  body.dark-mode .watched-badge { color: #30a46c; }
+  body.dark-mode .watched-date { color: #888; }
+  body.dark-mode .modal-overlay { background: rgba(0,0,0,0.7); }
+  body.dark-mode .note-entry .note-text { color: #e0e0e0; }
+  body.dark-mode .note-entry .note-meta { color: #888; }
+  body.dark-mode .settings-panel h3 { color: #e0e0e0; }
+  body.dark-mode .settings-toggle-btn { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.08); color: #aaa; }
+  body.dark-mode .add-member-form input { background: rgba(30,30,50,0.6); border-color: rgba(255,255,255,0.1); color: #e0e0e0; }
+  body.dark-mode .add-member-form button { color: #fff; }
+  body.dark-mode .member-list .remove-member-btn { color: #666; }
+  body.dark-mode .cat-loader .loader-dots { color: #666; }
+  body.dark-mode .login-subtitle { color: #8888aa; }
+  body.dark-mode .edit-modal h3 { color: #e0e0e0; }
+  body.dark-mode .edit-modal label { color: #aaa; }
+  .empty-hint { text-align: center; color: #aeaeb2; padding: 12px; font-size: 13px; }
+  body.dark-mode .empty-hint { color: #666; }
+  .form-label-inline { font-size: 13px; color: #8e8e93; white-space: nowrap; }
+  body.dark-mode .form-label-inline { color: #aaa; }
 
   /* Dark mode toggle */
   .dark-toggle {
@@ -1051,7 +1072,7 @@
       <img id="posterPreviewImg" src="" alt="Preview">
     </div>
     <div class="form-row" style="align-items:center; gap:16px;">
-      <span style="font-size:13px; color:#8e8e93; white-space:nowrap;">Score:</span>
+      <span class="form-label-inline">Score:</span>
       <span id="addScoreRow" style="display:flex; gap:4px;">
         <button type="button" class="score-star" onclick="setAddScore(1)">&#x2B50;</button>
         <button type="button" class="score-star" onclick="setAddScore(2)">&#x2B50;</button>
@@ -1059,7 +1080,7 @@
         <button type="button" class="score-star" onclick="setAddScore(4)">&#x2B50;</button>
         <button type="button" class="score-star" onclick="setAddScore(5)">&#x2B50;</button>
       </span>
-      <span style="font-size:13px; color:#8e8e93; white-space:nowrap; margin-left:auto;">Watched:</span>
+      <span class="form-label-inline" style="margin-left:auto;">Watched:</span>
       <input type="date" id="movieWatchedDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; width:140px;">
     </div>
     <div class="form-row">
@@ -1495,7 +1516,7 @@
 
     if (isShared && Array.isArray(movie.notes)) {
       if (movie.notes.length === 0) {
-        container.innerHTML = '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet. Be the first to add one!</div>';
+        container.innerHTML = '<div class="empty-hint">No notes yet. Be the first to add one!</div>';
       } else {
         container.innerHTML = movie.notes.map(n => `
           <div class="note-entry">
@@ -1510,7 +1531,7 @@
       const noteText = (typeof movie.notes === 'string') ? movie.notes : '';
       container.innerHTML = noteText
         ? `<div class="note-entry"><div class="note-text">${escapeHtml(noteText)}</div></div>`
-        : '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet.</div>';
+        : '<div class="empty-hint">No notes yet.</div>';
     }
   }
 
