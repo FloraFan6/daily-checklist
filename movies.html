@@ -480,6 +480,18 @@
     color: #7c5cbf;
   }
 
+  .movie-score {
+    font-size: 12px;
+    color: #f59e0b;
+    margin-bottom: 4px;
+  }
+
+  .movie-watched-date {
+    font-size: 11px;
+    color: #aeaeb2;
+    margin-bottom: 4px;
+  }
+
   .notes-preview {
     font-size: 12px;
     color: #aeaeb2;
@@ -671,6 +683,80 @@
   .modal-close-btn:hover {
     background: rgba(0,0,0,0.08);
     color: #6b6b6f;
+  }
+
+  /* ---- Edit modal form ---- */
+  .edit-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8e8e93;
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+
+  .edit-form label:first-child { margin-top: 0; }
+
+  .edit-form input[type="text"],
+  .edit-form input[type="url"],
+  .edit-form input[type="date"],
+  .edit-form textarea,
+  .edit-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    cursor: none;
+    background: rgba(255,255,255,0.75);
+  }
+
+  .edit-form input:focus, .edit-form textarea:focus, .edit-form select:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+  }
+
+  .edit-form textarea { resize: vertical; min-height: 60px; }
+
+  .edit-form .score-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .score-star {
+    font-size: 24px;
+    cursor: none;
+    background: none;
+    border: none;
+    padding: 2px;
+    transition: transform 0.15s;
+    filter: grayscale(1) opacity(0.3);
+  }
+
+  .score-star.active {
+    filter: none;
+  }
+
+  .score-star:hover {
+    transform: scale(1.2);
+  }
+
+  .edit-save-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    background: linear-gradient(135deg, #a78bfa, #c084fc);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: none;
+    font-family: inherit;
   }
 
   /* ---- Settings panel ---- */
@@ -882,6 +968,18 @@
     <div class="poster-preview hidden" id="posterPreview">
       <img id="posterPreviewImg" src="" alt="Preview">
     </div>
+    <div class="form-row" style="align-items:center; gap:16px;">
+      <span style="font-size:13px; color:#8e8e93; white-space:nowrap;">Score:</span>
+      <span id="addScoreRow" style="display:flex; gap:4px;">
+        <button type="button" class="score-star" onclick="setAddScore(1)">&#x2B50;</button>
+        <button type="button" class="score-star" onclick="setAddScore(2)">&#x2B50;</button>
+        <button type="button" class="score-star" onclick="setAddScore(3)">&#x2B50;</button>
+        <button type="button" class="score-star" onclick="setAddScore(4)">&#x2B50;</button>
+        <button type="button" class="score-star" onclick="setAddScore(5)">&#x2B50;</button>
+      </span>
+      <span style="font-size:13px; color:#8e8e93; white-space:nowrap; margin-left:auto;">Watched:</span>
+      <input type="date" id="movieWatchedDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; cursor:none; width:140px;">
+    </div>
     <div class="form-row">
       <textarea id="movieNotes" placeholder="Notes or thoughts... (optional)"></textarea>
       <button type="submit">+ Add</button>
@@ -922,6 +1020,35 @@
       <button onclick="addNote()">Add</button>
     </div>
     <button class="modal-close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay hidden" id="editModal" onclick="closeEditOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Edit Movie</h2>
+    <div class="edit-form">
+      <label>Title</label>
+      <input type="text" id="editTitle">
+      <label>Year</label>
+      <input type="text" id="editYear">
+      <label>Poster URL</label>
+      <input type="url" id="editPoster">
+      <label>Score</label>
+      <div class="score-row" id="editScoreRow">
+        <button class="score-star" onclick="setEditScore(1)">&#x2B50;</button>
+        <button class="score-star" onclick="setEditScore(2)">&#x2B50;</button>
+        <button class="score-star" onclick="setEditScore(3)">&#x2B50;</button>
+        <button class="score-star" onclick="setEditScore(4)">&#x2B50;</button>
+        <button class="score-star" onclick="setEditScore(5)">&#x2B50;</button>
+      </div>
+      <label>Watched Date</label>
+      <input type="date" id="editWatchedDate">
+      <label>Notes</label>
+      <textarea id="editNotes"></textarea>
+      <button class="edit-save-btn" onclick="saveEdit()">Save</button>
+      <button class="modal-close-btn" onclick="closeEditModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -1092,6 +1219,18 @@
       const watchedClass = movie.watched ? 'watched' : 'unwatched';
       const watchedText = movie.watched ? 'Watched' : 'Unwatched';
 
+      // Score display
+      let scoreHtml = '';
+      if (movie.score && movie.score > 0) {
+        scoreHtml = '<div class="movie-score">' + '★'.repeat(movie.score) + '☆'.repeat(5 - movie.score) + '</div>';
+      }
+
+      // Watched date display
+      let watchedDateHtml = '';
+      if (movie.watched && movie.watchedDate) {
+        watchedDateHtml = '<div class="movie-watched-date">Watched ' + escapeHtml(movie.watchedDate) + '</div>';
+      }
+
       let notesPreview = '';
       if (isShared && Array.isArray(movie.notes) && movie.notes.length > 0) {
         const last = movie.notes[movie.notes.length - 1];
@@ -1107,11 +1246,14 @@
             <div class="movie-title">${escapeHtml(movie.title)}</div>
             ${movie.year ? '<div class="movie-year">' + escapeHtml(movie.year) + '</div>' : ''}
             <span class="watched-badge ${watchedClass}">${watchedText}</span>
+            ${scoreHtml}
+            ${watchedDateHtml}
             ${notesPreview}
             <div class="movie-actions">
-              <button onclick="toggleWatched('${movie.id}', ${!movie.watched})">${movie.watched ? 'Mark Unwatched' : 'Mark Watched'}</button>
+              <button onclick="toggleWatched('${movie.id}', ${!movie.watched})">${movie.watched ? 'Unwatched' : 'Watched'}</button>
+              <button onclick="openEditModal('${movie.id}')">Edit</button>
               <button onclick="openNotes('${movie.id}')">Notes</button>
-              <button class="delete-movie-btn" onclick="deleteMovie('${movie.id}')">Delete</button>
+              <button class="delete-movie-btn" onclick="deleteMovie('${movie.id}')">Del</button>
             </div>
           </div>
         </div>
@@ -1129,6 +1271,14 @@
     `).join('');
   }
 
+  let addScore = 0;
+
+  window.setAddScore = function(n) {
+    addScore = (addScore === n) ? 0 : n;
+    const stars = document.getElementById('addScoreRow').querySelectorAll('.score-star');
+    stars.forEach((s, i) => s.classList.toggle('active', i < addScore));
+  };
+
   // --- Actions ---
   window.addMovie = async function(e) {
     e.preventDefault();
@@ -1136,17 +1286,21 @@
     const yearInput = document.getElementById('movieYear');
     const posterInput = document.getElementById('moviePoster');
     const notesInput = document.getElementById('movieNotes');
+    const watchedDateInput = document.getElementById('movieWatchedDate');
 
     const title = titleInput.value.trim();
     if (!title) return;
 
     const id = generateId();
     const isShared = currentMode === 'shared';
+    const watchedDate = watchedDateInput.value || '';
     const movieData = {
       title,
       year: yearInput.value.trim(),
       poster: posterInput.value.trim(),
-      watched: false,
+      watched: !!watchedDate,
+      watchedDate: watchedDate,
+      score: addScore,
       addedAt: new Date()
     };
 
@@ -1171,12 +1325,21 @@
     yearInput.value = '';
     posterInput.value = '';
     notesInput.value = '';
+    watchedDateInput.value = '';
+    addScore = 0;
+    document.getElementById('addScoreRow').querySelectorAll('.score-star').forEach(s => s.classList.remove('active'));
     document.getElementById('posterPreview').classList.add('hidden');
     titleInput.focus();
   };
 
   window.toggleWatched = async function(id, newVal) {
-    await updateDoc(doc(db, moviesCollectionPath(), id), { watched: newVal });
+    const update = { watched: newVal };
+    if (newVal) {
+      update.watchedDate = new Date().toISOString().split('T')[0];
+    } else {
+      update.watchedDate = '';
+    }
+    await updateDoc(doc(db, moviesCollectionPath(), id), update);
   };
 
   window.deleteMovie = async function(id) {
@@ -1289,6 +1452,73 @@
 
   window.closeModalOverlay = function(e) {
     if (e.target === e.currentTarget) closeModal();
+  };
+
+  // --- Edit modal ---
+  let editMovieId = null;
+  let editScore = 0;
+
+  window.openEditModal = function(movieId) {
+    editMovieId = movieId;
+    const movie = currentMovies.find(m => m.id === movieId);
+    if (!movie) return;
+
+    document.getElementById('editTitle').value = movie.title || '';
+    document.getElementById('editYear').value = movie.year || '';
+    document.getElementById('editPoster').value = movie.poster || '';
+    document.getElementById('editWatchedDate').value = movie.watchedDate || '';
+
+    // Set score
+    editScore = movie.score || 0;
+    const stars = document.getElementById('editScoreRow').querySelectorAll('.score-star');
+    stars.forEach((s, i) => s.classList.toggle('active', i < editScore));
+
+    // Notes (personal mode = string, shared = skip editing notes here)
+    const isShared = currentMode === 'shared';
+    const notesEl = document.getElementById('editNotes');
+    if (isShared) {
+      notesEl.style.display = 'none';
+      notesEl.previousElementSibling.style.display = 'none';
+    } else {
+      notesEl.style.display = '';
+      notesEl.previousElementSibling.style.display = '';
+      notesEl.value = (typeof movie.notes === 'string') ? movie.notes : '';
+    }
+
+    document.getElementById('editModal').classList.remove('hidden');
+  };
+
+  window.setEditScore = function(n) {
+    editScore = (editScore === n) ? 0 : n;
+    const stars = document.getElementById('editScoreRow').querySelectorAll('.score-star');
+    stars.forEach((s, i) => s.classList.toggle('active', i < editScore));
+  };
+
+  window.saveEdit = async function() {
+    if (!editMovieId) return;
+    const isShared = currentMode === 'shared';
+    const update = {
+      title: document.getElementById('editTitle').value.trim(),
+      year: document.getElementById('editYear').value.trim(),
+      poster: document.getElementById('editPoster').value.trim(),
+      score: editScore,
+      watchedDate: document.getElementById('editWatchedDate').value || '',
+      watched: !!document.getElementById('editWatchedDate').value
+    };
+    if (!isShared) {
+      update.notes = document.getElementById('editNotes').value.trim();
+    }
+    await updateDoc(doc(db, moviesCollectionPath(), editMovieId), update);
+    closeEditModal();
+  };
+
+  window.closeEditModal = function() {
+    editMovieId = null;
+    document.getElementById('editModal').classList.add('hidden');
+  };
+
+  window.closeEditOverlay = function(e) {
+    if (e.target === e.currentTarget) closeEditModal();
   };
 
   // --- Settings / Members ---

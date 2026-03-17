@@ -194,7 +194,7 @@
   .entry-amount { font-weight: 600; min-width: 70px; text-align: right; }
   .entry-amount.saving { color: #30a46c; }
   .entry-amount.expense { color: #e5484d; }
-  .entry-date { font-size: 12px; color: #aeaeb2; min-width: 70px; text-align: right; }
+  .entry-date { font-size: 11px; color: #aeaeb2; min-width: 58px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
   .entry-delete {
     background: none; border: none; color: #d1c4e9; font-size: 16px;
     cursor: none; padding: 2px 6px; border-radius: 6px; transition: all 0.2s;
@@ -202,8 +202,8 @@
   .entry-delete:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
 
   /* ---- Charts ---- */
-  .chart-container { position: relative; width: 100%; margin-top: 12px; }
-  .chart-canvas { width: 100%; display: block; }
+  .chart-container { position: relative; width: 100%; margin-top: 12px; overflow-x: auto; }
+  .chart-canvas { display: block; min-width: 100%; }
 
   .chart-toggle {
     display: flex; gap: 4px; margin-bottom: 12px;
@@ -215,6 +215,18 @@
   }
   .chart-toggle button.active { border-color: #a78bfa; color: #7c5cbf; background: rgba(167,139,250,0.08); font-weight: 600; }
   .chart-toggle button:hover:not(.active) { color: #6b6b6f; }
+
+  .year-toggle {
+    display: flex; gap: 4px; margin-bottom: 12px; align-items: center;
+  }
+  .year-toggle button {
+    padding: 4px 12px; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.7);
+    border-radius: 8px; font-size: 12px; font-family: inherit; cursor: none;
+    color: #8e8e93; transition: all 0.2s;
+  }
+  .year-toggle button.active { border-color: #a78bfa; color: #7c5cbf; background: rgba(167,139,250,0.08); font-weight: 600; }
+  .year-toggle button:hover:not(.active) { color: #6b6b6f; }
+  .year-toggle .year-label { font-size: 12px; color: #aeaeb2; margin-right: 4px; }
 
   /* Category legend */
   .cat-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
@@ -314,6 +326,7 @@
       <button id="chartBtnCumulative" onclick="setChart('cumulative')">Cumulative</button>
       <button id="chartBtnCategory" onclick="setChart('category')">By Category</button>
     </div>
+    <div class="year-toggle" id="yearToggle"></div>
     <div class="chart-container">
       <canvas class="chart-canvas" id="mainChart" height="260"></canvas>
     </div>
@@ -330,6 +343,10 @@
   <div class="card" id="savingsCard">
     <h2>Add Savings</h2>
     <form class="fin-form" onsubmit="addSaving(event)">
+      <select id="savingContributor" style="width:120px;">
+        <option value="XIXI">XIXI</option>
+        <option value="HANHAN">HANHAN</option>
+      </select>
       <input type="number" step="0.01" min="0" class="input-amount" id="savingAmount" placeholder="Amount" required>
       <input type="month" class="input-month" id="savingMonth" required>
       <input type="date" class="input-date" id="savingDate" required>
@@ -342,6 +359,10 @@
   <div class="card hidden" id="expensesCard">
     <h2>Add Expense</h2>
     <form class="fin-form" onsubmit="addExpense(event)">
+      <select id="expenseContributor" style="width:120px;">
+        <option value="XIXI">XIXI</option>
+        <option value="HANHAN">HANHAN</option>
+      </select>
       <input type="text" class="input-desc" id="expenseDesc" placeholder="Description..." autocomplete="off" required>
       <input type="number" step="0.01" min="0" class="input-amount" id="expenseAmount" placeholder="Amount" required>
       <select id="expenseCategory" onchange="onCategoryChange()">
@@ -402,6 +423,7 @@
   let unsubSavings = null;
   let unsubExpenses = null;
   let unsubMembers = null;
+  let selectedYear = 'all';
 
   // Category colors
   const CAT_COLORS = {
@@ -414,6 +436,11 @@
   function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
   function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
   function fmtMoney(n) { return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmtDate(d) {
+    if (!d) return '';
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
   function monthLabel(ym) {
     if (!ym) return '?';
     const [y, m] = ym.split('-');
@@ -515,7 +542,7 @@
         <span class="entry-avatar">${escapeHtml(s.addedBy || '?')}</span>
         <span class="entry-desc">Savings for ${monthLabel(s.month)}</span>
         <span class="entry-amount saving">+${fmtMoney(s.amount)}</span>
-        <span class="entry-date">${s.date || ''}</span>
+        <span class="entry-date">${fmtDate(s.date)}</span>
         <button class="entry-delete" onclick="deleteSaving('${s.id}')">&times;</button>
       </div>
     `).join('');
@@ -530,39 +557,96 @@
         <span class="entry-desc">${escapeHtml(e.description || '')}</span>
         <span class="entry-cat">${escapeHtml(e.category || 'Other')}</span>
         <span class="entry-amount expense">-${fmtMoney(e.amount)}</span>
-        <span class="entry-date">${e.date || ''}</span>
+        <span class="entry-date">${fmtDate(e.date)}</span>
         <button class="entry-delete" onclick="deleteExpense('${e.id}')">&times;</button>
       </div>
     `).join('');
   }
 
   // --- Charts ---
+  function getAvailableYears() {
+    const years = new Set();
+    allSavings.forEach(s => { const y = (s.month || (s.date || '').slice(0, 7) || '').split('-')[0]; if (y) years.add(y); });
+    allExpenses.forEach(e => { const y = (e.date || '').slice(0, 4); if (y) years.add(y); });
+    return Array.from(years).sort();
+  }
+
+  function renderYearToggle() {
+    const years = getAvailableYears();
+    const el = document.getElementById('yearToggle');
+    if (years.length <= 1) { el.innerHTML = ''; return; }
+    el.innerHTML = '<span class="year-label">Year:</span>' +
+      `<button class="${selectedYear === 'all' ? 'active' : ''}" onclick="setYear('all')">All</button>` +
+      years.map(y => `<button class="${selectedYear === y ? 'active' : ''}" onclick="setYear('${y}')">${y}</button>`).join('');
+  }
+
+  window.setYear = function(y) {
+    selectedYear = y;
+    renderYearToggle();
+    renderChart();
+  };
+
+  function filterByYear(items, dateField) {
+    if (selectedYear === 'all') return items;
+    return items.filter(item => {
+      const d = dateField === 'month' ? (item.month || (item.date || '').slice(0, 7)) : (item.date || '');
+      return d.startsWith(selectedYear);
+    });
+  }
+
   function renderChart() {
+    renderYearToggle();
     const canvas = document.getElementById('mainChart');
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = 260 * dpr;
-    ctx.scale(dpr, dpr);
-    canvas.style.height = '260px';
-    const W = rect.width, H = 260;
-    ctx.clearRect(0, 0, W, H);
+    const container = canvas.parentElement;
+    const containerW = container.clientWidth;
 
-    if (currentChart === 'monthly') drawMonthlyChart(ctx, W, H);
-    else if (currentChart === 'cumulative') drawCumulativeChart(ctx, W, H);
-    else drawCategoryChart(ctx, W, H);
+    if (currentChart === 'monthly') {
+      const data = getMonthlyData();
+      // Make canvas wider if many months
+      const minBarWidth = 70;
+      const neededW = Math.max(containerW, data.length * minBarWidth + 80);
+      canvas.style.width = neededW + 'px';
+      canvas.style.height = '260px';
+      canvas.width = neededW * dpr;
+      canvas.height = 260 * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, neededW, 260);
+      drawMonthlyChart(ctx, neededW, 260);
+    } else if (currentChart === 'cumulative') {
+      canvas.style.width = '100%';
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = 260 * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.height = '260px';
+      ctx.clearRect(0, 0, rect.width, 260);
+      drawCumulativeChart(ctx, rect.width, 260);
+    } else {
+      canvas.style.width = '100%';
+      const rect = canvas.getBoundingClientRect();
+      const chartH = 300;
+      canvas.width = rect.width * dpr;
+      canvas.height = chartH * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.height = chartH + 'px';
+      ctx.clearRect(0, 0, rect.width, chartH);
+      drawCategoryChart(ctx, rect.width, chartH);
+    }
   }
 
   function getMonthlyData() {
+    const filteredSavings = filterByYear(allSavings, 'month');
+    const filteredExpenses = filterByYear(allExpenses, 'date');
     const months = {};
-    allSavings.forEach(s => {
+    filteredSavings.forEach(s => {
       const m = s.month || (s.date || '').slice(0, 7);
       if (!m) return;
       if (!months[m]) months[m] = { savings: 0, expenses: 0 };
       months[m].savings += Number(s.amount) || 0;
     });
-    allExpenses.forEach(e => {
+    filteredExpenses.forEach(e => {
       const m = (e.date || '').slice(0, 7);
       if (!m) return;
       if (!months[m]) months[m] = { savings: 0, expenses: 0 };
@@ -693,43 +777,69 @@
 
   function drawCategoryChart(ctx, W, H) {
     const legendEl = document.getElementById('chartLegend');
+    const filteredExpenses = filterByYear(allExpenses, 'date');
     const cats = {};
-    allExpenses.forEach(e => {
+    filteredExpenses.forEach(e => {
       const c = e.category || 'Other';
       cats[c] = (cats[c] || 0) + (Number(e.amount) || 0);
     });
     const entries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+    const total = entries.reduce((s, e) => s + e[1], 0);
 
     if (entries.length === 0) { ctx.fillStyle = '#aeaeb2'; ctx.font = '14px -apple-system, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('No expenses yet', W/2, H/2); legendEl.innerHTML = ''; return; }
 
-    const pad = { top: 20, right: 20, bottom: 20, left: 100 };
-    const cW = W - pad.left - pad.right;
-    const cH = H - pad.top - pad.bottom;
-    const maxVal = Math.max(...entries.map(e => e[1]), 1);
-    const barH = Math.min((cH / entries.length) - 8, 28);
+    // Pie chart
+    const cx = W * 0.35;
+    const cy = H / 2;
+    const radius = Math.min(cx - 20, cy - 20, 110);
+    let startAngle = -Math.PI / 2;
 
-    entries.forEach(([cat, val], i) => {
-      const y = pad.top + i * (cH / entries.length) + (cH / entries.length - barH) / 2;
-      const w = (val / maxVal) * cW;
+    entries.forEach(([cat, val]) => {
+      const sliceAngle = (val / total) * Math.PI * 2;
       const color = catColor(cat);
 
       ctx.fillStyle = color;
-      roundRect(ctx, pad.left, y, w, barH, 4);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+      ctx.closePath();
+      ctx.fill();
 
-      ctx.fillStyle = '#2c2c2e';
-      ctx.font = '12px -apple-system, sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillText(cat, pad.left - 10, y + barH / 2 + 4);
+      // Label on slice (only if > 5%)
+      if (val / total > 0.05) {
+        const midAngle = startAngle + sliceAngle / 2;
+        const labelR = radius * 0.65;
+        const lx = cx + Math.cos(midAngle) * labelR;
+        const ly = cy + Math.sin(midAngle) * labelR;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(Math.round(val / total * 100) + '%', lx, ly);
+      }
 
-      ctx.fillStyle = '#6b6b6f';
-      ctx.font = '11px -apple-system, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(fmtMoney(val), pad.left + w + 8, y + barH / 2 + 4);
+      startAngle += sliceAngle;
     });
 
-    legendEl.innerHTML = entries.map(([cat]) =>
-      `<div class="cat-legend-item"><span class="cat-dot" style="background:${catColor(cat)}"></span>${escapeHtml(cat)}</div>`
-    ).join('');
+    // Legend on right side
+    const legendX = W * 0.65;
+    let legendY = 30;
+    entries.forEach(([cat, val]) => {
+      const color = catColor(cat);
+      ctx.fillStyle = color;
+      roundRect(ctx, legendX, legendY, 12, 12, 3);
+      ctx.fillStyle = '#2c2c2e';
+      ctx.font = '13px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(cat, legendX + 18, legendY + 6);
+      ctx.fillStyle = '#8e8e93';
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.fillText(fmtMoney(val), legendX + 18, legendY + 22);
+      legendY += 36;
+    });
+
+    legendEl.innerHTML = '';
   }
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -759,12 +869,13 @@
     const amount = document.getElementById('savingAmount').value;
     const month = document.getElementById('savingMonth').value;
     const date = document.getElementById('savingDate').value;
+    const contributor = document.getElementById('savingContributor').value;
     if (!amount || !month || !date) return;
     const id = generateId();
     await setDoc(doc(db, 'shared/finances/savings', id), {
       amount: parseFloat(amount),
       month, date,
-      addedBy: currentUser.displayName || currentUser.email,
+      addedBy: contributor,
       addedAt: new Date()
     });
     document.getElementById('savingAmount').value = '';
@@ -781,11 +892,12 @@
       if (!category) { alert('Enter a category name.'); return; }
     }
     const date = document.getElementById('expenseDate').value;
+    const contributor = document.getElementById('expenseContributor').value;
     if (!desc || !amount || !date) return;
     const id = generateId();
     await setDoc(doc(db, 'shared/finances/expenses', id), {
       description: desc, amount: parseFloat(amount), category, date,
-      addedBy: currentUser.displayName || currentUser.email,
+      addedBy: contributor,
       addedAt: new Date()
     });
     document.getElementById('expenseDesc').value = '';
