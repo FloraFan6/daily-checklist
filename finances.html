@@ -118,6 +118,23 @@
   body.dark-mode .clock-label { color: #c4b5fd; }
   @media (max-width: 600px) { .world-clocks { font-size: 11px; top: 52px; left: 8px; } }
 
+  /* ---- DaysMatter mini ---- */
+  .dm-mini {
+    position: fixed; top: 130px; left: 12px; z-index: 8999;
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    opacity: 0.8; transition: opacity 0.3s;
+  }
+  .dm-mini:hover { opacity: 1; }
+  .dm-mini-row { display: flex; align-items: center; gap: 6px; }
+  .dm-mini-title { color: #60a5fa; font-weight: 700; font-size: 12px; }
+  .dm-mini-days { color: #ec4899; font-weight: 800; font-size: 13px; }
+  .dm-mini-label { color: #8e8e93; font-size: 10px; }
+  body.dark-mode .dm-mini-title { color: #93c5fd; }
+  body.dark-mode .dm-mini-days { color: #f0abfc; }
+  body.dark-mode .dm-mini-label { color: #666; }
+  @media (max-width: 600px) { .dm-mini { font-size: 11px; top: 120px; left: 8px; } }
+
   /* ---- Top navigation bar ---- */
   .top-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
@@ -418,6 +435,7 @@
   <div class="clock-row"><span class="clock-label">🇨🇦</span><span class="clock-time" id="clockTO">--:--</span></div>
   <div class="clock-row"><span class="clock-label">🌴</span><span class="clock-time" id="clockCA">--:--</span></div>
 </div>
+<div class="dm-mini" id="dmMini" style="display:none;"></div>
 
 <div class="floating-decor">&#x1F408;&#x200D;&#x2B1B;</div>
 <div class="floating-decor">&#x1F43E;</div>
@@ -640,6 +658,7 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appContainer').style.display = 'block';
       document.getElementById('topNav').style.display = 'block'; document.getElementById('worldClocks').style.display = 'flex';
+      initDaysMatter();
       document.getElementById('userAvatar').src = user.photoURL || '';
       document.getElementById('userName').textContent = user.displayName || user.email;
       // Welcome greeting
@@ -1147,23 +1166,23 @@
   let dmImageData = '';
   let dmUnsubscribe = null;
 
-  window.toggleDaysMatter = function() {
-    const section = document.getElementById('dmSection');
-    section.classList.toggle('hidden');
-    if (!section.classList.contains('hidden') && !dmUnsubscribe) {
-      loadDaysMatter();
-    }
-  };
-
-  function loadDaysMatter() {
+  function initDaysMatter() {
+    if (dmUnsubscribe) return;
+    document.getElementById('dmMini').style.display = '';
     const q = collection(db, 'shared', 'daysmatter', 'items');
     dmUnsubscribe = onSnapshot(q, snap => {
       const items = [];
       snap.forEach(d => items.push({ id: d.id, ...d.data() }));
       items.sort((a, b) => daysUntil(a.date) - daysUntil(b.date));
       renderDmCards(items);
+      renderDmMini(items);
     });
   }
+
+  window.toggleDaysMatter = function() {
+    const section = document.getElementById('dmSection');
+    section.classList.toggle('hidden');
+  };
 
   function daysUntil(dateStr) {
     const target = new Date(dateStr + 'T00:00:00');
@@ -1196,6 +1215,22 @@
         + '<div class="dm-card-days-label">' + (todayLabel ? '' : label) + '</div>'
         + '<div class="dm-card-date">' + item.date + '</div>'
         + '</div></div>';
+    }).join('');
+  }
+
+  function renderDmMini(items) {
+    const container = document.getElementById('dmMini');
+    if (items.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = items.map(item => {
+      const days = daysUntil(item.date);
+      const isPast = days < 0;
+      const displayDays = isPast ? Math.abs(days) : days;
+      const label = isPast ? 'days ago' : (days === 0 ? 'Today!' : 'days to go');
+      return '<div class="dm-mini-row">'
+        + '<span class="dm-mini-title">' + escapeHtml(item.title) + '</span> '
+        + '<span class="dm-mini-days">' + (days === 0 ? 'Today!' : displayDays) + '</span> '
+        + (days !== 0 ? '<span class="dm-mini-label">' + label + '</span>' : '')
+        + '</div>';
     }).join('');
   }
 
