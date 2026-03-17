@@ -479,14 +479,22 @@
     background: rgba(167,139,250,0.1); color: #7c5cbf; font-weight: 500;
   }
   body.dark-mode .movie-genre-tag { background: rgba(167,139,250,0.15); color: #c4b5fd; }
-  .dual-reviews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .dual-reviews { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
   .review-badge {
     font-size: 10px; padding: 2px 8px; border-radius: 10px;
     background: rgba(167,139,250,0.08); color: #8e8e93; font-weight: 500;
   }
   .review-badge .review-name { font-weight: 600; color: #7c5cbf; }
+  .review-badge .not-rated { font-style: italic; opacity: 0.6; }
+  .avg-score { font-size: 13px; color: #f59e0b; margin-top: 4px; font-weight: 600; }
+  .avg-score .half-star { position: relative; display: inline-block; color: #d4d4d8; }
+  .avg-score .half-star::before { content: '★'; position: absolute; left: 0; overflow: hidden; color: #f59e0b; }
+  .avg-score .full-star { color: #f59e0b; }
+  .avg-score .empty-star { color: #d4d4d8; }
   body.dark-mode .review-badge { background: rgba(167,139,250,0.12); color: #aaa; }
   body.dark-mode .review-badge .review-name { color: #c4b5fd; }
+  body.dark-mode .avg-score .empty-star { color: #555; }
+  body.dark-mode .avg-score .half-star { color: #555; }
   .poster-search-row { display: flex; gap: 8px; align-items: center; }
   .poster-search-btn {
     padding: 10px 16px; background: linear-gradient(135deg, #f59e0b, #f97316);
@@ -1251,6 +1259,13 @@
     return div.innerHTML;
   }
 
+  function renderHalfStars(score) {
+    const full = Math.floor(score);
+    return '<span class="full-star">' + '\u2605'.repeat(full) + '</span>' +
+           '<span class="empty-star">' + '\u2606'.repeat(5 - full) + '</span>' +
+           ' ' + score.toFixed(1) + '/5';
+  }
+
   function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
@@ -1398,19 +1413,33 @@
 
       // Dual reviews
       let reviewHtml = '';
-      if (isShared && movie.reviews) {
+      if (isShared) {
         const names = { 'florafan26@gmail.com': 'XIXI', 'h.han.working@gmail.com': 'HANHAN' };
+        const allEmails = ['florafan26@gmail.com', 'h.han.working@gmail.com'];
+        const reviews = movie.reviews || {};
         reviewHtml = '<div class="dual-reviews">';
-        for (const [email, r] of Object.entries(movie.reviews)) {
-          const name = names[email.toLowerCase()] || email.split('@')[0];
-          reviewHtml += '<span class="review-badge"><span class="review-name">' + name + '</span> ' + '\u2605'.repeat(r.score || 0) + '\u2606'.repeat(5 - (r.score || 0)) + '</span>';
+        let totalScore = 0; let ratedCount = 0;
+        allEmails.forEach(function(email) {
+          const name = names[email];
+          const r = reviews[email];
+          if (r && r.score > 0) {
+            reviewHtml += '<span class="review-badge"><span class="review-name">' + name + '</span> ' + '\u2605'.repeat(r.score) + '\u2606'.repeat(5 - r.score) + '</span>';
+            totalScore += r.score; ratedCount++;
+          } else {
+            reviewHtml += '<span class="review-badge"><span class="review-name">' + name + '</span> <span class="not-rated">not yet rated</span></span>';
+          }
+        });
+        // Average score with half-star support
+        if (ratedCount > 0) {
+          const avg = totalScore / ratedCount;
+          reviewHtml += '<div class="avg-score">Avg: ' + renderHalfStars(avg) + '</div>';
         }
         reviewHtml += '</div>';
       }
 
-      // Score display
+      // Score display (personal mode only; shared mode uses dual reviews above)
       let scoreHtml = '';
-      if (movie.score && movie.score > 0) {
+      if (!isShared && movie.score && movie.score > 0) {
         scoreHtml = '<div class="movie-score">' + '★'.repeat(movie.score) + '☆'.repeat(5 - movie.score) + '</div>';
       }
 
@@ -1569,11 +1598,15 @@
       poster: posterInput.value.trim(),
       watched: !!watchedDate,
       watchedDate: watchedDate,
-      score: addScore,
+      genres: getSelectedGenres('addGenres'),
       addedAt: new Date()
     };
 
     if (isShared) {
+      movieData.reviews = {};
+      if (addScore > 0) {
+        movieData.reviews[currentUser.email.toLowerCase()] = { score: addScore, date: new Date().toISOString() };
+      }
       movieData.notes = [];
       movieData.addedBy = currentUser.displayName || currentUser.email;
       // Add initial note if provided
@@ -1586,6 +1619,7 @@
         });
       }
     } else {
+      movieData.score = addScore;
       movieData.notes = notesInput.value.trim();
     }
 
@@ -1762,8 +1796,8 @@
     document.getElementById('editPosterResults').innerHTML = '';
 
     // In shared mode, load personal review score
-    if (isShared && movie.reviews && movie.reviews[currentUser.email]) {
-      editScore = movie.reviews[currentUser.email].score || 0;
+    if (isShared && movie.reviews && movie.reviews[currentUser.email.toLowerCase()]) {
+      editScore = movie.reviews[currentUser.email.toLowerCase()].score || 0;
       const stars2 = document.getElementById('editScoreRow').querySelectorAll('.score-star');
       stars2.forEach((s, i) => s.classList.toggle('active', i < editScore));
     }
@@ -1784,13 +1818,20 @@
       title: document.getElementById('editTitle').value.trim(),
       year: document.getElementById('editYear').value.trim(),
       poster: document.getElementById('editPoster').value.trim(),
-      score: editScore,
       watchedDate: document.getElementById('editWatchedDate').value || '',
       watched: !!document.getElementById('editWatchedDate').value
     };
-    if (!isShared) {
+    if (isShared) {
+      // Merge score into reviews object (dot notation breaks on emails with dots)
+      const movie = currentMovies.find(m => m.id === editMovieId);
+      const existingReviews = (movie && movie.reviews) ? Object.assign({}, movie.reviews) : {};
+      existingReviews[currentUser.email.toLowerCase()] = { score: editScore, date: new Date().toISOString() };
+      update.reviews = existingReviews;
+    } else {
+      update.score = editScore;
       update.notes = document.getElementById('editNotes').value.trim();
     }
+    update.genres = getSelectedGenres('editGenres');
     await updateDoc(doc(db, moviesCollectionPath(), editMovieId), update);
     closeEditModal();
   };
