@@ -85,6 +85,21 @@
   .cat-loader .loader-dots { font-size: 14px; color: #aeaeb2; animation: dotPulse 1.5s ease-in-out infinite; }
   @keyframes dotPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
+  /* ---- World clocks ---- */
+  .world-clocks {
+    position: fixed; top: 56px; left: 12px; z-index: 8999;
+    display: flex; flex-direction: column; gap: 2px;
+    font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace;
+    opacity: 0.7; transition: opacity 0.3s;
+  }
+  .world-clocks:hover { opacity: 1; }
+  .clock-row { display: flex; align-items: center; gap: 5px; }
+  .clock-label { color: #a78bfa; font-weight: 600; min-width: 28px; }
+  .clock-time { color: #6b6b6f; }
+  body.dark-mode .clock-time { color: #aaa; }
+  body.dark-mode .clock-label { color: #c4b5fd; }
+  @media (max-width: 600px) { .world-clocks { font-size: 11px; top: 52px; left: 8px; } }
+
   /* ---- Top navigation bar ---- */
   .top-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
@@ -328,6 +343,13 @@
   </div>
 </nav>
 
+<!-- World clocks -->
+<div class="world-clocks" id="worldClocks" style="display:none;">
+  <div class="clock-row"><span class="clock-label">🇨🇳</span><span class="clock-time" id="clockCN">--:--</span></div>
+  <div class="clock-row"><span class="clock-label">🇨🇦</span><span class="clock-time" id="clockTO">--:--</span></div>
+  <div class="clock-row"><span class="clock-label">🌴</span><span class="clock-time" id="clockCA">--:--</span></div>
+</div>
+
 <div class="floating-decor">&#x1F408;&#x200D;&#x2B1B;</div>
 <div class="floating-decor">&#x1F43E;</div>
 <div class="floating-decor">&#x1F408;&#x200D;&#x2B1B;</div>
@@ -527,14 +549,14 @@
       if (!allowed) {
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('appContainer').style.display = 'none';
-        document.getElementById('topNav').style.display = 'none';
+        document.getElementById('topNav').style.display = 'none'; document.getElementById('worldClocks').style.display = 'none';
         document.getElementById('accessDenied').style.display = 'block';
         return;
       }
       currentUser = user;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appContainer').style.display = 'block';
-      document.getElementById('topNav').style.display = 'block';
+      document.getElementById('topNav').style.display = 'block'; document.getElementById('worldClocks').style.display = 'flex';
       document.getElementById('userAvatar').src = user.photoURL || '';
       document.getElementById('userName').textContent = user.displayName || user.email;
       // Welcome greeting
@@ -559,7 +581,7 @@
       currentUser = null;
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('appContainer').style.display = 'none';
-      document.getElementById('topNav').style.display = 'none';
+      document.getElementById('topNav').style.display = 'none'; document.getElementById('worldClocks').style.display = 'none';
       if (unsubSavings) { unsubSavings(); unsubSavings = null; }
       if (unsubExpenses) { unsubExpenses(); unsubExpenses = null; }
       if (unsubMembers) { unsubMembers(); unsubMembers = null; }
@@ -1050,6 +1072,30 @@
       setTimeout(() => { window.location.href = href; }, 250);
     });
   });
+</script>
+<script>
+  </script>
+<script>
+  // World clocks - update every second
+  function updateClocks() {
+    var now = new Date();
+    var fmt = function(tz) {
+      var days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+      var o = { timeZone: tz };
+      var t = now.toLocaleTimeString("en-US", Object.assign({ hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }, o));
+      var d = now.toLocaleDateString("en-US", Object.assign({ month: "2-digit", day: "2-digit", year: "numeric" }, o));
+      var wd = days[new Date(now.toLocaleString("en-US", o)).getDay()];
+      return t + "  " + d + "  " + wd;
+    };
+    var cn = document.getElementById("clockCN");
+    var to = document.getElementById("clockTO");
+    var ca = document.getElementById("clockCA");
+    if (cn) cn.textContent = fmt("Asia/Shanghai");
+    if (to) to.textContent = fmt("America/Toronto");
+    if (ca) ca.textContent = fmt("America/Los_Angeles");
+  }
+  updateClocks();
+  setInterval(updateClocks, 1000);
 </script>
 <script>
   // Random Hello Kitty cursor on each page load
