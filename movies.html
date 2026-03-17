@@ -61,7 +61,7 @@
   body.dark-mode .cat-loader .loader-dots { color: #666; }
   body.dark-mode .login-subtitle { color: #8888aa; }
   body.dark-mode .edit-modal h3 { color: #e0e0e0; }
-  body.dark-mode .edit-modal label { color: #aaa; }
+  body.dark-mode .edit-form label { color: #aaa; }
   .empty-hint { text-align: center; color: #aeaeb2; padding: 12px; font-size: 13px; }
   body.dark-mode .empty-hint { color: #666; }
   .form-label-inline { font-size: 13px; color: #8e8e93; white-space: nowrap; }
@@ -457,6 +457,53 @@
   }
 
   .poster-preview.hidden { display: none; }
+
+
+  /* ---- Genre tags ---- */
+  .genre-select-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .genre-chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    border: 1px solid rgba(167,139,250,0.3); background: rgba(167,139,250,0.06);
+    color: #7c5cbf; cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .genre-chip.selected {
+    background: linear-gradient(135deg, #a78bfa, #c084fc); color: #fff;
+    border-color: transparent; box-shadow: 0 2px 8px rgba(167,139,250,0.3);
+  }
+  .genre-chip.disabled { opacity: 0.35; pointer-events: none; }
+  body.dark-mode .genre-chip { border-color: rgba(167,139,250,0.2); background: rgba(167,139,250,0.08); color: #c4b5fd; }
+  body.dark-mode .genre-chip.selected { background: linear-gradient(135deg, #a78bfa, #c084fc); color: #fff; }
+  .movie-genres { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .movie-genre-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(167,139,250,0.1); color: #7c5cbf; font-weight: 500;
+  }
+  body.dark-mode .movie-genre-tag { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+  .dual-reviews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .review-badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(167,139,250,0.08); color: #8e8e93; font-weight: 500;
+  }
+  .review-badge .review-name { font-weight: 600; color: #7c5cbf; }
+  body.dark-mode .review-badge { background: rgba(167,139,250,0.12); color: #aaa; }
+  body.dark-mode .review-badge .review-name { color: #c4b5fd; }
+  .poster-search-row { display: flex; gap: 8px; align-items: center; }
+  .poster-search-btn {
+    padding: 10px 16px; background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: #fff; border: none; border-radius: 12px; font-size: 13px; font-weight: 600;
+    font-family: inherit; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+  }
+  .poster-search-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+  .poster-results { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .poster-option {
+    width: 80px; border-radius: 8px; cursor: pointer; border: 2px solid transparent;
+    transition: all 0.2s; overflow: hidden;
+  }
+  .poster-option:hover { border-color: #a78bfa; transform: scale(1.05); }
+  .poster-option.selected { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(167,139,250,0.3); }
+  .poster-option img { width: 100%; display: block; }
+  .poster-searching { font-size: 12px; color: #8e8e93; padding: 8px; }
+  body.dark-mode .poster-searching { color: #888; }
 
   /* ---- Filter bar ---- */
   .filter-bar {
@@ -1065,11 +1112,17 @@
       <input type="text" id="movieTitle" placeholder="Movie title..." autocomplete="off">
       <input type="text" id="movieYear" class="year-input" placeholder="Year" autocomplete="off">
     </div>
-    <div class="form-row">
-      <input type="url" id="moviePoster" placeholder="Poster image URL (optional)" autocomplete="off" oninput="previewPoster()">
+    <div class="form-row poster-search-row">
+      <input type="url" id="moviePoster" placeholder="Poster image URL (optional)" autocomplete="off" oninput="previewPoster()" style="flex:1;">
+      <button type="button" class="poster-search-btn" onclick="searchPoster()">&#x1F50D; Search</button>
     </div>
+    <div class="poster-results" id="posterResults"></div>
     <div class="poster-preview hidden" id="posterPreview">
       <img id="posterPreviewImg" src="" alt="Preview">
+    </div>
+    <div class="form-row" style="flex-direction:column; gap:6px;">
+      <span class="form-label-inline">Genres (max 3):</span>
+      <div class="genre-select-wrap" id="addGenres"><span class="genre-chip" onclick="toggleGenre(this)">Action</span><span class="genre-chip" onclick="toggleGenre(this)">Comedy</span><span class="genre-chip" onclick="toggleGenre(this)">Drama</span><span class="genre-chip" onclick="toggleGenre(this)">Horror</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Animation</span><span class="genre-chip" onclick="toggleGenre(this)">Documentary</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Adventure</span><span class="genre-chip" onclick="toggleGenre(this)">Musical</span><span class="genre-chip" onclick="toggleGenre(this)">Crime</span><span class="genre-chip" onclick="toggleGenre(this)">Family</span></div>
     </div>
     <div class="form-row" style="align-items:center; gap:16px;">
       <span class="form-label-inline">Score:</span>
@@ -1136,8 +1189,14 @@
       <label>Year</label>
       <input type="text" id="editYear">
       <label>Poster URL</label>
-      <input type="url" id="editPoster">
-      <label>Score</label>
+      <div class="poster-search-row" style="margin-bottom:10px;">
+        <input type="url" id="editPoster" style="flex:1;">
+        <button type="button" class="poster-search-btn" onclick="searchEditPoster()">&#x1F50D; Search</button>
+      </div>
+      <div class="poster-results" id="editPosterResults"></div>
+      <label>Genres (max 3)</label>
+      <div class="genre-select-wrap" id="editGenres"><span class="genre-chip" onclick="toggleGenre(this)">Action</span><span class="genre-chip" onclick="toggleGenre(this)">Comedy</span><span class="genre-chip" onclick="toggleGenre(this)">Drama</span><span class="genre-chip" onclick="toggleGenre(this)">Horror</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Animation</span><span class="genre-chip" onclick="toggleGenre(this)">Documentary</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Adventure</span><span class="genre-chip" onclick="toggleGenre(this)">Musical</span><span class="genre-chip" onclick="toggleGenre(this)">Crime</span><span class="genre-chip" onclick="toggleGenre(this)">Family</span></div>
+      <label>Your Score</label>
       <div class="score-row" id="editScoreRow">
         <button class="score-star" onclick="setEditScore(1)">&#x2B50;</button>
         <button class="score-star" onclick="setEditScore(2)">&#x2B50;</button>
@@ -1331,6 +1390,24 @@
       const watchedClass = movie.watched ? 'watched' : 'unwatched';
       const watchedText = movie.watched ? 'Watched' : 'Unwatched';
 
+      // Genre tags
+      let genreHtml = '';
+      if (movie.genres && movie.genres.length > 0) {
+        genreHtml = '<div class="movie-genres">' + movie.genres.map(g => '<span class="movie-genre-tag">' + escapeHtml(g) + '</span>').join('') + '</div>';
+      }
+
+      // Dual reviews
+      let reviewHtml = '';
+      if (isShared && movie.reviews) {
+        const names = { 'florafan26@gmail.com': 'XIXI', 'h.han.working@gmail.com': 'HANHAN' };
+        reviewHtml = '<div class="dual-reviews">';
+        for (const [email, r] of Object.entries(movie.reviews)) {
+          const name = names[email.toLowerCase()] || email.split('@')[0];
+          reviewHtml += '<span class="review-badge"><span class="review-name">' + name + '</span> ' + '\u2605'.repeat(r.score || 0) + '\u2606'.repeat(5 - (r.score || 0)) + '</span>';
+        }
+        reviewHtml += '</div>';
+      }
+
       // Score display
       let scoreHtml = '';
       if (movie.score && movie.score > 0) {
@@ -1358,7 +1435,9 @@
             <div class="movie-title">${escapeHtml(movie.title)}</div>
             ${movie.year ? '<div class="movie-year">' + escapeHtml(movie.year) + '</div>' : ''}
             <span class="watched-badge ${watchedClass}">${watchedText}</span>
+            ${genreHtml}
             ${scoreHtml}
+            ${reviewHtml}
             ${watchedDateHtml}
             ${notesPreview}
             <div class="movie-actions">
@@ -1389,6 +1468,84 @@
     addScore = (addScore === n) ? 0 : n;
     const stars = document.getElementById('addScoreRow').querySelectorAll('.score-star');
     stars.forEach((s, i) => s.classList.toggle('active', i < addScore));
+  };
+
+  // Genre tag toggle (max 3)
+  window.toggleGenre = function(el) {
+    const wrap = el.parentElement;
+    if (el.classList.contains('selected')) {
+      el.classList.remove('selected');
+    } else {
+      const selected = wrap.querySelectorAll('.genre-chip.selected');
+      if (selected.length >= 3) return;
+      el.classList.add('selected');
+    }
+    const count = wrap.querySelectorAll('.genre-chip.selected').length;
+    wrap.querySelectorAll('.genre-chip:not(.selected)').forEach(c => {
+      c.classList.toggle('disabled', count >= 3);
+    });
+  };
+
+  function getSelectedGenres(containerId) {
+    return Array.from(document.getElementById(containerId).querySelectorAll('.genre-chip.selected')).map(c => c.textContent);
+  }
+
+  function setGenreSelection(containerId, genres) {
+    const wrap = document.getElementById(containerId);
+    wrap.querySelectorAll('.genre-chip').forEach(c => {
+      c.classList.remove('selected', 'disabled');
+      if (genres && genres.includes(c.textContent)) c.classList.add('selected');
+    });
+    const count = wrap.querySelectorAll('.genre-chip.selected').length;
+    wrap.querySelectorAll('.genre-chip:not(.selected)').forEach(c => {
+      c.classList.toggle('disabled', count >= 3);
+    });
+  }
+
+  // Poster search via iTunes API
+  window.searchPoster = async function() {
+    const title = document.getElementById('movieTitle').value.trim();
+    if (!title) return;
+    const resultsEl = document.getElementById('posterResults');
+    resultsEl.innerHTML = '<div class="poster-searching">Searching...</div>';
+    try {
+      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=movie&limit=6');
+      const data = await resp.json();
+      if (data.results.length === 0) { resultsEl.innerHTML = '<div class="poster-searching">No results found.</div>'; return; }
+      resultsEl.innerHTML = data.results.map(r => {
+        const url = r.artworkUrl100.replace('100x100', '600x600');
+        return '<div class="poster-option" onclick="selectPoster(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
+      }).join('');
+    } catch(e) { resultsEl.innerHTML = '<div class="poster-searching">Search failed. Try pasting a URL.</div>'; }
+  };
+
+  window.searchEditPoster = async function() {
+    const title = document.getElementById('editTitle').value.trim();
+    if (!title) return;
+    const resultsEl = document.getElementById('editPosterResults');
+    resultsEl.innerHTML = '<div class="poster-searching">Searching...</div>';
+    try {
+      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=movie&limit=6');
+      const data = await resp.json();
+      if (data.results.length === 0) { resultsEl.innerHTML = '<div class="poster-searching">No results found.</div>'; return; }
+      resultsEl.innerHTML = data.results.map(r => {
+        const url = r.artworkUrl100.replace('100x100', '600x600');
+        return '<div class="poster-option" onclick="selectEditPoster(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
+      }).join('');
+    } catch(e) { resultsEl.innerHTML = '<div class="poster-searching">Search failed.</div>'; }
+  };
+
+  window.selectPoster = function(el, url) {
+    document.getElementById('moviePoster').value = url;
+    document.querySelectorAll('#posterResults .poster-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    previewPoster();
+  };
+
+  window.selectEditPoster = function(el, url) {
+    document.getElementById('editPoster').value = url;
+    document.querySelectorAll('#editPosterResults .poster-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
   };
 
   // --- Actions ---
@@ -1441,6 +1598,8 @@
     addScore = 0;
     document.getElementById('addScoreRow').querySelectorAll('.score-star').forEach(s => s.classList.remove('active'));
     document.getElementById('posterPreview').classList.add('hidden');
+    document.getElementById('posterResults').innerHTML = '';
+    setGenreSelection('addGenres', []);
     titleInput.focus();
   };
 
@@ -1516,7 +1675,7 @@
 
     if (isShared && Array.isArray(movie.notes)) {
       if (movie.notes.length === 0) {
-        container.innerHTML = '<div class="empty-hint">No notes yet. Be the first to add one!</div>';
+        container.innerHTML = '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet. Be the first to add one!</div>';
       } else {
         container.innerHTML = movie.notes.map(n => `
           <div class="note-entry">
@@ -1531,7 +1690,7 @@
       const noteText = (typeof movie.notes === 'string') ? movie.notes : '';
       container.innerHTML = noteText
         ? `<div class="note-entry"><div class="note-text">${escapeHtml(noteText)}</div></div>`
-        : '<div class="empty-hint">No notes yet.</div>';
+        : '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet.</div>';
     }
   }
 
@@ -1596,6 +1755,17 @@
       notesEl.style.display = '';
       notesEl.previousElementSibling.style.display = '';
       notesEl.value = (typeof movie.notes === 'string') ? movie.notes : '';
+    }
+
+    // Set genres
+    setGenreSelection('editGenres', movie.genres || []);
+    document.getElementById('editPosterResults').innerHTML = '';
+
+    // In shared mode, load personal review score
+    if (isShared && movie.reviews && movie.reviews[currentUser.email]) {
+      editScore = movie.reviews[currentUser.email].score || 0;
+      const stars2 = document.getElementById('editScoreRow').querySelectorAll('.score-star');
+      stars2.forEach((s, i) => s.classList.toggle('active', i < editScore));
     }
 
     document.getElementById('editModal').classList.remove('hidden');
