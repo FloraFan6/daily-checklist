@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Movie Diary</title>
+<title>Book Shelf</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1137,8 +1137,8 @@
 <nav class="top-nav" id="topNav" style="display:none;">
   <div class="top-nav-inner">
     <a href="/" class="nav-link">&#x2705; Checklist</a>
-    <a href="/movies.html" class="nav-link active">&#x1F3AC; Movies</a>
-    <a href="/books.html" class="nav-link">&#x1F4DA; Books</a>
+    <a href="/movies.html" class="nav-link">&#x1F3AC; Movies</a>
+    <a href="/books.html" class="nav-link active">&#x1F4DA; Books</a>
     <a href="/finances.html" class="nav-link">&#x1F4B0; Finances</a>
   </div>
 </nav>
@@ -1162,8 +1162,8 @@
 <!-- Login screen -->
 <div class="login-screen" id="loginScreen" style="display:none;">
   <span class="header-icon">&#x1F408;&#x200D;&#x2B1B;</span>
-  <h1>Movie Diary</h1>
-  <p class="login-subtitle">Sign in to share your movie diary</p>
+  <h1>Book Shelf</h1>
+  <p class="login-subtitle">Sign in to share your book shelf</p>
   <button class="google-signin-btn" onclick="googleSignIn()">
     <svg viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 000 24c0 3.77.87 7.34 2.44 10.52l8.09-5.93z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
     Sign in with Google
@@ -1186,35 +1186,36 @@
   <div id="welcomeGreeting" class="welcome-greeting"></div>
 
   <header>
-    <span class="header-icon">&#x1F3AC;</span>
-    <h1>Movie Diary</h1>
+    <span class="header-icon">&#x1F4DA;</span>
+    <h1>Book Shelf</h1>
   </header>
 
   <!-- Mode toggle -->
   <div class="mode-toggle">
-    <button class="active" id="btnMyMode" onclick="setMode('my')">My Movies</button>
+    <button class="active" id="btnMyMode" onclick="setMode('my')">My Books</button>
     <button id="btnSharedMode" onclick="setMode('shared')">Shared</button>
   </div>
 
-  <!-- Add movie form -->
-  <form class="add-movie-form" onsubmit="addMovie(event)">
+  <!-- Add book form -->
+  <form class="add-movie-form" onsubmit="addBook(event)">
     <div class="form-row">
-      <input type="text" id="movieTitle" placeholder="Movie title..." autocomplete="off">
-      <input type="text" id="movieYear" class="year-input" placeholder="Year" autocomplete="off">
+      <input type="text" id="bookTitle" placeholder="Book title..." autocomplete="off" style="flex:2;">
+      <input type="text" id="bookAuthor" placeholder="Author" autocomplete="off" style="flex:1;">
+      <input type="text" id="bookYear" class="year-input" placeholder="Year" autocomplete="off">
     </div>
     <div class="form-row poster-search-row">
-      <input type="url" id="moviePoster" placeholder="Poster image URL (optional)" autocomplete="off" oninput="previewPoster()" style="flex:1;">
-      <button type="button" class="poster-search-btn" onclick="searchPoster()">&#x1F50D; Search</button>
-      <button type="button" class="poster-upload-btn" onclick="document.getElementById('posterUpload').click()">&#x1F4C1; Upload</button>
-      <input type="file" id="posterUpload" accept="image/*" style="display:none;" onchange="handlePosterUpload(this, 'moviePoster')">
+      <input type="url" id="bookCover" placeholder="Cover image URL (optional)" autocomplete="off" oninput="previewCover()" style="flex:1;">
+      <button type="button" class="poster-search-btn" onclick="searchCover()">&#x1F50D; Search</button>
+      <button type="button" class="poster-upload-btn" onclick="document.getElementById('coverUpload').click()">&#x1F4C1; Upload</button>
+      <input type="file" id="coverUpload" accept="image/*" style="display:none;" onchange="handlePosterUpload(this, 'bookCover')">
     </div>
-    <div class="poster-results" id="posterResults"></div>
-    <div class="poster-preview hidden" id="posterPreview">
-      <img id="posterPreviewImg" src="" alt="Preview">
+    <div class="poster-results" id="coverResults"></div>
+    <div class="poster-preview hidden" id="coverPreview">
+      <img id="coverPreviewImg" src="" alt="Preview">
     </div>
     <div class="form-row" style="flex-direction:column; gap:6px;">
       <span class="form-label-inline">Genres (max 3):</span>
-      <div class="genre-select-wrap" id="addGenres"><span class="genre-chip" onclick="toggleGenre(this)">Action</span><span class="genre-chip" onclick="toggleGenre(this)">Comedy</span><span class="genre-chip" onclick="toggleGenre(this)">Drama</span><span class="genre-chip" onclick="toggleGenre(this)">Horror</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Animation</span><span class="genre-chip" onclick="toggleGenre(this)">Documentary</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Adventure</span><span class="genre-chip" onclick="toggleGenre(this)">Musical</span><span class="genre-chip" onclick="toggleGenre(this)">Crime</span><span class="genre-chip" onclick="toggleGenre(this)">Family</span></div>
+      <div class="genre-select-wrap" id="addGenres"><span class="genre-chip" onclick="toggleGenre(this)">Fiction</span><span class="genre-chip" onclick="toggleGenre(this)">Non-Fiction</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Biography</span><span class="genre-chip" onclick="toggleGenre(this)">History</span><span class="genre-chip" onclick="toggleGenre(this)">Self-Help</span><span class="genre-chip" onclick="toggleGenre(this)">Poetry</span><span class="genre-chip" onclick="toggleGenre(this)">Comics</span><span class="genre-chip" onclick="toggleGenre(this)">Business</span><span class="genre-chip" onclick="toggleGenre(this)">Philosophy</span><span class="genre-chip" onclick="toggleGenre(this)">Classic</span></div>
     </div>
     <div class="form-row" style="align-items:center; gap:16px;">
       <span class="form-label-inline">Score:</span>
@@ -1225,11 +1226,11 @@
         <button type="button" class="score-star" onclick="setAddScore(4)">&#x2B50;</button>
         <button type="button" class="score-star" onclick="setAddScore(5)">&#x2B50;</button>
       </span>
-      <span class="form-label-inline" style="margin-left:auto;">Watched:</span>
-      <input type="date" id="movieWatchedDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; width:140px;">
+      <span class="form-label-inline" style="margin-left:auto;">Read:</span>
+      <input type="date" id="bookReadDate" style="padding:8px 10px; border:1px solid rgba(0,0,0,0.06); border-radius:10px; font-size:13px; font-family:inherit; background:rgba(255,255,255,0.75); outline:none; width:140px;">
     </div>
     <div class="form-row">
-      <textarea id="movieNotes" placeholder="Notes or thoughts... (optional)"></textarea>
+      <textarea id="bookNotes" placeholder="Notes or thoughts... (optional)"></textarea>
       <button type="submit">+ Add</button>
     </div>
   </form>
@@ -1237,12 +1238,12 @@
   <!-- Filter bar -->
   <div class="filter-bar">
     <button class="active" id="filterAll" onclick="setFilter('all')">All</button>
-    <button id="filterUnwatched" onclick="setFilter('unwatched')">Unwatched</button>
-    <button id="filterWatched" onclick="setFilter('watched')">Watched</button>
+    <button id="filterUnwatched" onclick="setFilter('unwatched')">Unread</button>
+    <button id="filterWatched" onclick="setFilter('watched')">Read</button>
   </div>
 
-  <!-- Movie grid -->
-  <div class="movie-grid" id="movieGrid"></div>
+  <!-- Book grid -->
+  <div class="movie-grid" id="bookGrid"></div>
 
   <!-- DaysMatter widget -->
   <button class="dm-toggle-btn" onclick="toggleDaysMatter()">🩵 DaysMatter</button>
@@ -1288,22 +1289,24 @@
 <!-- Edit modal -->
 <div class="modal-overlay hidden" id="editModal" onclick="closeEditOverlay(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <h2>Edit Movie</h2>
+    <h2>Edit Book</h2>
     <div class="edit-form">
       <label>Title</label>
       <input type="text" id="editTitle">
+      <label>Author</label>
+      <input type="text" id="editAuthor">
       <label>Year</label>
       <input type="text" id="editYear">
-      <label>Poster URL</label>
+      <label>Cover image URL</label>
       <div class="poster-search-row" style="margin-bottom:10px;">
-        <input type="url" id="editPoster" style="flex:1;">
-        <button type="button" class="poster-search-btn" onclick="searchEditPoster()">&#x1F50D; Search</button>
-        <button type="button" class="poster-upload-btn" onclick="document.getElementById('editPosterUpload').click()">&#x1F4C1; Upload</button>
-        <input type="file" id="editPosterUpload" accept="image/*" style="display:none;" onchange="handlePosterUpload(this, 'editPoster')">
+        <input type="url" id="editCover" style="flex:1;">
+        <button type="button" class="poster-search-btn" onclick="searchEditCover()">&#x1F50D; Search</button>
+        <button type="button" class="poster-upload-btn" onclick="document.getElementById('editCoverUpload').click()">&#x1F4C1; Upload</button>
+        <input type="file" id="editCoverUpload" accept="image/*" style="display:none;" onchange="handlePosterUpload(this, 'editCover')">
       </div>
-      <div class="poster-results" id="editPosterResults"></div>
+      <div class="poster-results" id="editCoverResults"></div>
       <label>Genres (max 3)</label>
-      <div class="genre-select-wrap" id="editGenres"><span class="genre-chip" onclick="toggleGenre(this)">Action</span><span class="genre-chip" onclick="toggleGenre(this)">Comedy</span><span class="genre-chip" onclick="toggleGenre(this)">Drama</span><span class="genre-chip" onclick="toggleGenre(this)">Horror</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Animation</span><span class="genre-chip" onclick="toggleGenre(this)">Documentary</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Adventure</span><span class="genre-chip" onclick="toggleGenre(this)">Musical</span><span class="genre-chip" onclick="toggleGenre(this)">Crime</span><span class="genre-chip" onclick="toggleGenre(this)">Family</span></div>
+      <div class="genre-select-wrap" id="editGenres"><span class="genre-chip" onclick="toggleGenre(this)">Fiction</span><span class="genre-chip" onclick="toggleGenre(this)">Non-Fiction</span><span class="genre-chip" onclick="toggleGenre(this)">Romance</span><span class="genre-chip" onclick="toggleGenre(this)">Mystery</span><span class="genre-chip" onclick="toggleGenre(this)">Sci-Fi</span><span class="genre-chip" onclick="toggleGenre(this)">Fantasy</span><span class="genre-chip" onclick="toggleGenre(this)">Thriller</span><span class="genre-chip" onclick="toggleGenre(this)">Biography</span><span class="genre-chip" onclick="toggleGenre(this)">History</span><span class="genre-chip" onclick="toggleGenre(this)">Self-Help</span><span class="genre-chip" onclick="toggleGenre(this)">Poetry</span><span class="genre-chip" onclick="toggleGenre(this)">Comics</span><span class="genre-chip" onclick="toggleGenre(this)">Business</span><span class="genre-chip" onclick="toggleGenre(this)">Philosophy</span><span class="genre-chip" onclick="toggleGenre(this)">Classic</span></div>
       <label>Your Score</label>
       <div class="score-row" id="editScoreRow">
         <button class="score-star" onclick="setEditScore(1)">&#x2B50;</button>
@@ -1312,8 +1315,8 @@
         <button class="score-star" onclick="setEditScore(4)">&#x2B50;</button>
         <button class="score-star" onclick="setEditScore(5)">&#x2B50;</button>
       </div>
-      <label>Watched Date</label>
-      <input type="date" id="editWatchedDate">
+      <label>Read Date</label>
+      <input type="date" id="editReadDate">
       <label>Notes</label>
       <textarea id="editNotes"></textarea>
       <button class="edit-save-btn" onclick="saveEdit()">Save</button>
@@ -1347,10 +1350,10 @@
   let currentUser = null;
   let currentMode = 'my';
   let currentFilter = 'all';
-  let currentMovies = [];
-  let unsubMovies = null;
+  let currentBooks = [];
+  let unsubBooks = null;
   let unsubMembers = null;
-  let openMovieId = null;
+  let openBookId = null;
 
   // --- Helpers ---
   function escapeHtml(str) {
@@ -1371,11 +1374,11 @@
   }
 
   // --- Firestore paths ---
-  function moviesCollectionPath() {
+  function booksCollectionPath() {
     if (currentMode === 'my') {
-      return `users/${currentUser.uid}/movies`;
+      return `users/${currentUser.uid}/books`;
     } else {
-      return `shared/movies/items`;
+      return `shared/books/items`;
     }
   }
 
@@ -1436,7 +1439,7 @@
       document.getElementById('settingsToggleBtn').style.display = isOwner ? 'block' : 'none';
       document.getElementById('settingsPanel').classList.add('hidden');
       await ensureOwnerInAllowed();
-      subscribeToMovies();
+      subscribeToBooks();
       if (isOwner) subscribeToMembers();
     } else {
       currentUser = null;
@@ -1444,28 +1447,28 @@
       document.getElementById('appContainer').style.display = 'none';
       document.getElementById('topNav').style.display = 'none'; document.getElementById('worldClocks').style.display = 'none';
       document.getElementById('accessDenied').style.display = 'none';
-      if (unsubMovies) { unsubMovies(); unsubMovies = null; }
+      if (unsubBooks) { unsubBooks(); unsubBooks = null; }
       if (unsubMembers) { unsubMembers(); unsubMembers = null; }
     }
   });
 
   // --- Firestore subscription ---
-  function subscribeToMovies() {
-    if (unsubMovies) { unsubMovies(); unsubMovies = null; }
-    const colRef = collection(db, moviesCollectionPath());
-    unsubMovies = onSnapshot(colRef, (snapshot) => {
-      currentMovies = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  function subscribeToBooks() {
+    if (unsubBooks) { unsubBooks(); unsubBooks = null; }
+    const colRef = collection(db, booksCollectionPath());
+    unsubBooks = onSnapshot(colRef, (snapshot) => {
+      currentBooks = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       // Sort by addedAt descending (newest first)
-      currentMovies.sort((a, b) => {
+      currentBooks.sort((a, b) => {
         const ta = a.addedAt ? (a.addedAt.seconds || 0) : 0;
         const tb = b.addedAt ? (b.addedAt.seconds || 0) : 0;
         return tb - ta;
       });
       render();
       // Update open modal if any
-      if (openMovieId) {
-        const movie = currentMovies.find(m => m.id === openMovieId);
-        if (movie) renderModalNotes(movie);
+      if (openBookId) {
+        const book = currentBooks.find(m => m.id === openBookId);
+        if (book) renderModalNotes(book);
       }
     });
   }
@@ -1480,36 +1483,36 @@
 
   // --- Render ---
   function render() {
-    const gridEl = document.getElementById('movieGrid');
-    let movies = currentMovies;
+    const gridEl = document.getElementById('bookGrid');
+    let books = currentBooks;
 
     if (currentFilter === 'watched') {
-      movies = movies.filter(m => m.watched);
+      books = books.filter(m => m.watched);
     } else if (currentFilter === 'unwatched') {
-      movies = movies.filter(m => !m.watched);
+      books = books.filter(m => !m.watched);
     }
 
-    if (movies.length === 0) {
-      const msg = currentMovies.length === 0
-        ? 'No movies yet.<br>Add one above!'
-        : 'No movies match this filter.';
-      gridEl.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><span class="empty-cat">\uD83C\uDFAC</span>' + msg + '</div>';
+    if (books.length === 0) {
+      const msg = currentBooks.length === 0
+        ? 'No books yet.<br>Add one above!'
+        : 'No books match this filter.';
+      gridEl.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><span class="empty-cat">\uD83D\uDCDA</span>' + msg + '</div>';
       return;
     }
 
     const isShared = currentMode === 'shared';
-    gridEl.innerHTML = movies.map(movie => {
-      const posterHtml = movie.poster
-        ? `<img class="movie-poster" src="${escapeHtml(movie.poster)}" alt="" onerror="this.outerHTML='<div class=\\'poster-fallback\\'>\\uD83C\\uDFAC</div>'">`
-        : '<div class="poster-fallback">\uD83C\uDFAC</div>';
+    gridEl.innerHTML = books.map(book => {
+      const posterHtml = book.cover
+        ? `<img class="movie-poster" src="${escapeHtml(book.cover)}" alt="" onerror="this.outerHTML='<div class=\\'poster-fallback\\'>\\uD83D\\uDCDA</div>'">`
+        : '<div class="poster-fallback">\uD83D\uDCDA</div>';
 
-      const watchedClass = movie.watched ? 'watched' : 'unwatched';
-      const watchedText = movie.watched ? 'Watched' : 'Unwatched';
+      const watchedClass = book.watched ? 'watched' : 'unwatched';
+      const watchedText = book.watched ? 'Read' : 'Unread';
 
       // Genre tags
       let genreHtml = '';
-      if (movie.genres && movie.genres.length > 0) {
-        genreHtml = '<div class="movie-genres">' + movie.genres.map(g => '<span class="movie-genre-tag">' + escapeHtml(g) + '</span>').join('') + '</div>';
+      if (book.genres && book.genres.length > 0) {
+        genreHtml = '<div class="movie-genres">' + book.genres.map(g => '<span class="movie-genre-tag">' + escapeHtml(g) + '</span>').join('') + '</div>';
       }
 
       // Dual reviews
@@ -1517,7 +1520,7 @@
       if (isShared) {
         const names = { 'florafan26@gmail.com': 'XIXI', 'h.han.working@gmail.com': 'HANHAN' };
         const allEmails = ['florafan26@gmail.com', 'h.han.working@gmail.com'];
-        const reviews = movie.reviews || {};
+        const reviews = book.reviews || {};
         reviewHtml = '<div class="dual-reviews">';
         let totalScore = 0; let ratedCount = 0;
         allEmails.forEach(function(email) {
@@ -1540,41 +1543,42 @@
 
       // Score display (personal mode only; shared mode uses dual reviews above)
       let scoreHtml = '';
-      if (!isShared && movie.score && movie.score > 0) {
-        scoreHtml = '<div class="movie-score">' + '★'.repeat(movie.score) + '☆'.repeat(5 - movie.score) + '</div>';
+      if (!isShared && book.score && book.score > 0) {
+        scoreHtml = '<div class="movie-score">' + '★'.repeat(book.score) + '☆'.repeat(5 - book.score) + '</div>';
       }
 
-      // Watched date display
-      let watchedDateHtml = '';
-      if (movie.watched && movie.watchedDate) {
-        watchedDateHtml = '<div class="movie-watched-date">Watched ' + escapeHtml(movie.watchedDate) + '</div>';
+      // Read date display
+      let readDateHtml = '';
+      if (book.watched && book.readDate) {
+        readDateHtml = '<div class="movie-watched-date">Read ' + escapeHtml(book.readDate) + '</div>';
       }
 
       let notesPreview = '';
-      if (isShared && Array.isArray(movie.notes) && movie.notes.length > 0) {
-        const last = movie.notes[movie.notes.length - 1];
+      if (isShared && Array.isArray(book.notes) && book.notes.length > 0) {
+        const last = book.notes[book.notes.length - 1];
         notesPreview = `<div class="notes-preview">${escapeHtml(last.text)}</div>`;
-      } else if (!isShared && movie.notes && typeof movie.notes === 'string') {
-        notesPreview = `<div class="notes-preview">${escapeHtml(movie.notes)}</div>`;
+      } else if (!isShared && book.notes && typeof book.notes === 'string') {
+        notesPreview = `<div class="notes-preview">${escapeHtml(book.notes)}</div>`;
       }
 
       return `
-        <div class="movie-card" data-id="${movie.id}">
+        <div class="movie-card" data-id="${book.id}">
           ${posterHtml}
           <div class="movie-info">
-            <div class="movie-title">${escapeHtml(movie.title)}</div>
-            ${movie.year ? '<div class="movie-year">' + escapeHtml(movie.year) + '</div>' : ''}
+            <div class="movie-title">${escapeHtml(book.title)}</div>
+            ${book.author ? '<div class="movie-year" style="font-style:italic;">by ' + escapeHtml(book.author) + '</div>' : ''}
+            ${book.year ? '<div class="movie-year">' + escapeHtml(book.year) + '</div>' : ''}
             <span class="watched-badge ${watchedClass}">${watchedText}</span>
             ${genreHtml}
             ${scoreHtml}
             ${reviewHtml}
-            ${watchedDateHtml}
+            ${readDateHtml}
             ${notesPreview}
             <div class="movie-actions">
-              <button onclick="toggleWatched('${movie.id}', ${!movie.watched})">${movie.watched ? 'Unwatched' : 'Watched'}</button>
-              <button onclick="openEditModal('${movie.id}')">Edit</button>
-              <button onclick="openNotes('${movie.id}')">Notes</button>
-              <button class="delete-movie-btn" onclick="deleteMovie('${movie.id}')">Del</button>
+              <button onclick="toggleRead('${book.id}', ${!book.watched})">${book.watched ? 'Unread' : 'Read'}</button>
+              <button onclick="openBookEdit('${book.id}')">Edit</button>
+              <button onclick="openBookNotes('${book.id}')">Notes</button>
+              <button class="delete-movie-btn" onclick="deleteBook('${book.id}')">Del</button>
             </div>
           </div>
         </div>
@@ -1633,48 +1637,48 @@
   }
 
   // Poster search via iTunes API
-  window.searchPoster = async function() {
-    const title = document.getElementById('movieTitle').value.trim();
+  window.searchCover = async function() {
+    const title = document.getElementById('bookTitle').value.trim();
     if (!title) return;
-    const resultsEl = document.getElementById('posterResults');
+    const resultsEl = document.getElementById('coverResults');
     resultsEl.innerHTML = '<div class="poster-searching">Searching...</div>';
     try {
-      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=movie&limit=6');
+      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=ebook&limit=6');
       const data = await resp.json();
       if (data.results.length === 0) { resultsEl.innerHTML = '<div class="poster-searching">No results found.</div>'; return; }
       resultsEl.innerHTML = data.results.map(r => {
         const url = r.artworkUrl100.replace('100x100', '600x600');
-        return '<div class="poster-option" onclick="selectPoster(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
+        return '<div class="poster-option" onclick="selectCover(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
       }).join('');
     } catch(e) { resultsEl.innerHTML = '<div class="poster-searching">Search failed. Try pasting a URL.</div>'; }
   };
 
-  window.searchEditPoster = async function() {
+  window.searchEditCover = async function() {
     const title = document.getElementById('editTitle').value.trim();
     if (!title) return;
-    const resultsEl = document.getElementById('editPosterResults');
+    const resultsEl = document.getElementById('editCoverResults');
     resultsEl.innerHTML = '<div class="poster-searching">Searching...</div>';
     try {
-      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=movie&limit=6');
+      const resp = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(title) + '&media=ebook&limit=6');
       const data = await resp.json();
       if (data.results.length === 0) { resultsEl.innerHTML = '<div class="poster-searching">No results found.</div>'; return; }
       resultsEl.innerHTML = data.results.map(r => {
         const url = r.artworkUrl100.replace('100x100', '600x600');
-        return '<div class="poster-option" onclick="selectEditPoster(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
+        return '<div class="poster-option" onclick="selectEditCover(this, &quot;' + escapeHtml(url) + '&quot;)"><img src="' + escapeHtml(url) + '"></div>';
       }).join('');
     } catch(e) { resultsEl.innerHTML = '<div class="poster-searching">Search failed.</div>'; }
   };
 
-  window.selectPoster = function(el, url) {
-    document.getElementById('moviePoster').value = url;
-    document.querySelectorAll('#posterResults .poster-option').forEach(o => o.classList.remove('selected'));
+  window.selectCover = function(el, url) {
+    document.getElementById('bookCover').value = url;
+    document.querySelectorAll('#coverResults .poster-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
-    previewPoster();
+    previewCover();
   };
 
-  window.selectEditPoster = function(el, url) {
-    document.getElementById('editPoster').value = url;
-    document.querySelectorAll('#editPosterResults .poster-option').forEach(o => o.classList.remove('selected'));
+  window.selectEditCover = function(el, url) {
+    document.getElementById('editCover').value = url;
+    document.querySelectorAll('#editCoverResults .poster-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
   };
 
@@ -1694,7 +1698,7 @@
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         document.getElementById(targetInputId).value = dataUrl;
-        if (targetInputId === 'moviePoster') previewPoster();
+        if (targetInputId === 'bookCover') previewCover();
       };
       img.src = e.target.result;
     };
@@ -1703,86 +1707,88 @@
   };
 
   // --- Actions ---
-  window.addMovie = async function(e) {
+  window.addBook = async function(e) {
     e.preventDefault();
-    const titleInput = document.getElementById('movieTitle');
-    const yearInput = document.getElementById('movieYear');
-    const posterInput = document.getElementById('moviePoster');
-    const notesInput = document.getElementById('movieNotes');
-    const watchedDateInput = document.getElementById('movieWatchedDate');
+    const titleInput = document.getElementById('bookTitle');
+    const authorInput = document.getElementById('bookAuthor');
+    const yearInput = document.getElementById('bookYear');
+    const posterInput = document.getElementById('bookCover');
+    const notesInput = document.getElementById('bookNotes');
+    const readDateInput = document.getElementById('bookReadDate');
 
     const title = titleInput.value.trim();
     if (!title) return;
 
     const id = generateId();
     const isShared = currentMode === 'shared';
-    const watchedDate = watchedDateInput.value || '';
-    const movieData = {
+    const readDate = readDateInput.value || '';
+    const bookData = {
       title,
+      author: authorInput.value.trim(),
       year: yearInput.value.trim(),
-      poster: posterInput.value.trim(),
-      watched: !!watchedDate,
-      watchedDate: watchedDate,
+      cover: posterInput.value.trim(),
+      watched: !!readDate,
+      readDate: readDate,
       genres: getSelectedGenres('addGenres'),
       addedAt: new Date()
     };
 
     if (isShared) {
-      movieData.reviews = {};
+      bookData.reviews = {};
       if (addScore > 0) {
-        movieData.reviews[currentUser.email.toLowerCase()] = { score: addScore, date: new Date().toISOString() };
+        bookData.reviews[currentUser.email.toLowerCase()] = { score: addScore, date: new Date().toISOString() };
       }
-      movieData.notes = [];
-      movieData.addedBy = currentUser.displayName || currentUser.email;
-      // Add initial note if provided
+      bookData.notes = [];
+      bookData.addedBy = currentUser.displayName || currentUser.email;
       const noteText = notesInput.value.trim();
       if (noteText) {
-        movieData.notes.push({
+        bookData.notes.push({
           author: currentUser.displayName || currentUser.email,
           text: noteText,
           date: new Date().toISOString()
         });
       }
     } else {
-      movieData.score = addScore;
-      movieData.notes = notesInput.value.trim();
+      bookData.score = addScore;
+      bookData.notes = notesInput.value.trim();
     }
 
-    await setDoc(doc(db, moviesCollectionPath(), id), movieData);
+    await setDoc(doc(db, booksCollectionPath(), id), bookData);
     titleInput.value = '';
+    authorInput.value = '';
     yearInput.value = '';
     posterInput.value = '';
     notesInput.value = '';
-    watchedDateInput.value = '';
+    readDateInput.value = '';
     addScore = 0;
     document.getElementById('addScoreRow').querySelectorAll('.score-star').forEach(s => s.classList.remove('active'));
-    document.getElementById('posterPreview').classList.add('hidden');
-    document.getElementById('posterResults').innerHTML = '';
+    document.getElementById('coverPreview').classList.add('hidden');
+    document.getElementById('coverResults').innerHTML = '';
     setGenreSelection('addGenres', []);
     titleInput.focus();
   };
 
-  window.toggleWatched = async function(id, newVal) {
+  window.toggleRead = async function(id, newVal) {
     const update = { watched: newVal };
     if (newVal) {
-      update.watchedDate = new Date().toISOString().split('T')[0];
+      update.readDate = new Date().toISOString().split('T')[0];
     } else {
-      update.watchedDate = '';
+      update.readDate = '';
     }
-    await updateDoc(doc(db, moviesCollectionPath(), id), update);
+    await updateDoc(doc(db, booksCollectionPath(), id), update);
     if (newVal && window.celebrateCats) celebrateCats();
   };
 
-  window.deleteMovie = async function(id) {
-    if (!confirm('Delete this movie?')) return;
-    await deleteDoc(doc(db, moviesCollectionPath(), id));
+  window.deleteBook = async function(id) {
+    if (!confirm('Delete this book?')) return;
+    await deleteDoc(doc(db, booksCollectionPath(), id));
   };
 
   window.setMode = function(mode) {
     currentMode = mode;
     document.getElementById('btnMyMode').classList.toggle('active', mode === 'my');
     document.getElementById('btnSharedMode').classList.toggle('active', mode === 'shared');
-    subscribeToMovies();
+    subscribeToBooks();
   };
 
   window.setFilter = function(filter) {
@@ -1793,10 +1799,10 @@
     render();
   };
 
-  window.previewPoster = function() {
-    const url = document.getElementById('moviePoster').value.trim();
-    const preview = document.getElementById('posterPreview');
-    const img = document.getElementById('posterPreviewImg');
+  window.previewCover = function() {
+    const url = document.getElementById('bookCover').value.trim();
+    const preview = document.getElementById('coverPreview');
+    const img = document.getElementById('coverPreviewImg');
     if (url) {
       img.src = url;
       img.onerror = () => preview.classList.add('hidden');
@@ -1807,36 +1813,36 @@
   };
 
   // --- Notes modal ---
-  window.openNotes = function(movieId) {
-    openMovieId = movieId;
-    const movie = currentMovies.find(m => m.id === movieId);
-    if (!movie) return;
+  window.openBookNotes = function(movieId) {
+    openBookId = movieId;
+    const book = currentBooks.find(m => m.id === movieId);
+    if (!book) return;
 
-    document.getElementById('modalTitle').textContent = movie.title;
-    document.getElementById('modalYear').textContent = movie.year || '';
+    document.getElementById('modalTitle').textContent = book.title;
+    document.getElementById('modalYear').textContent = book.year || '';
 
     const posterEl = document.getElementById('modalPoster');
-    if (movie.poster) {
-      posterEl.src = movie.poster;
+    if (book.cover) {
+      posterEl.src = book.cover;
       posterEl.style.display = 'block';
     } else {
       posterEl.style.display = 'none';
     }
 
-    renderModalNotes(movie);
+    renderModalNotes(book);
     document.getElementById('notesModal').classList.remove('hidden');
     document.getElementById('modalNoteInput').value = '';
   };
 
-  function renderModalNotes(movie) {
+  function renderModalNotes(book) {
     const container = document.getElementById('modalNotes');
     const isShared = currentMode === 'shared';
 
-    if (isShared && Array.isArray(movie.notes)) {
-      if (movie.notes.length === 0) {
+    if (isShared && Array.isArray(book.notes)) {
+      if (book.notes.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet. Be the first to add one!</div>';
       } else {
-        container.innerHTML = movie.notes.map(n => `
+        container.innerHTML = book.notes.map(n => `
           <div class="note-entry">
             <div class="note-author">${escapeHtml(n.author)}</div>
             <div class="note-text">${escapeHtml(n.text)}</div>
@@ -1846,7 +1852,7 @@
       }
     } else {
       // Personal mode - single text note
-      const noteText = (typeof movie.notes === 'string') ? movie.notes : '';
+      const noteText = (typeof book.notes === 'string') ? book.notes : '';
       container.innerHTML = noteText
         ? `<div class="note-entry"><div class="note-text">${escapeHtml(noteText)}</div></div>`
         : '<div style="text-align:center; color:#aeaeb2; padding:12px; font-size:13px;">No notes yet.</div>';
@@ -1854,13 +1860,13 @@
   }
 
   window.addNote = async function() {
-    if (!openMovieId) return;
+    if (!openBookId) return;
     const input = document.getElementById('modalNoteInput');
     const text = input.value.trim();
     if (!text) return;
 
     const isShared = currentMode === 'shared';
-    const docRef = doc(db, moviesCollectionPath(), openMovieId);
+    const docRef = doc(db, booksCollectionPath(), openBookId);
 
     if (isShared) {
       const noteEntry = {
@@ -1877,7 +1883,7 @@
   };
 
   window.closeModal = function() {
-    openMovieId = null;
+    openBookId = null;
     document.getElementById('notesModal').classList.add('hidden');
   };
 
@@ -1886,21 +1892,22 @@
   };
 
   // --- Edit modal ---
-  let editMovieId = null;
+  let editBookId = null;
   let editScore = 0;
 
-  window.openEditModal = function(movieId) {
-    editMovieId = movieId;
-    const movie = currentMovies.find(m => m.id === movieId);
-    if (!movie) return;
+  window.openBookEdit = function(bookId) {
+    editBookId = bookId;
+    const book = currentBooks.find(m => m.id === bookId);
+    if (!book) return;
 
-    document.getElementById('editTitle').value = movie.title || '';
-    document.getElementById('editYear').value = movie.year || '';
-    document.getElementById('editPoster').value = movie.poster || '';
-    document.getElementById('editWatchedDate').value = movie.watchedDate || '';
+    document.getElementById('editTitle').value = book.title || '';
+    document.getElementById('editAuthor').value = book.author || '';
+    document.getElementById('editYear').value = book.year || '';
+    document.getElementById('editCover').value = book.cover || '';
+    document.getElementById('editReadDate').value = book.readDate || '';
 
     // Set score
-    editScore = movie.score || 0;
+    editScore = book.score || 0;
     const stars = document.getElementById('editScoreRow').querySelectorAll('.score-star');
     stars.forEach((s, i) => s.classList.toggle('active', i < editScore));
 
@@ -1913,16 +1920,16 @@
     } else {
       notesEl.style.display = '';
       notesEl.previousElementSibling.style.display = '';
-      notesEl.value = (typeof movie.notes === 'string') ? movie.notes : '';
+      notesEl.value = (typeof book.notes === 'string') ? book.notes : '';
     }
 
     // Set genres
-    setGenreSelection('editGenres', movie.genres || []);
-    document.getElementById('editPosterResults').innerHTML = '';
+    setGenreSelection('editGenres', book.genres || []);
+    document.getElementById('editCoverResults').innerHTML = '';
 
     // In shared mode, load personal review score
-    if (isShared && movie.reviews && movie.reviews[currentUser.email.toLowerCase()]) {
-      editScore = movie.reviews[currentUser.email.toLowerCase()].score || 0;
+    if (isShared && book.reviews && book.reviews[currentUser.email.toLowerCase()]) {
+      editScore = book.reviews[currentUser.email.toLowerCase()].score || 0;
       const stars2 = document.getElementById('editScoreRow').querySelectorAll('.score-star');
       stars2.forEach((s, i) => s.classList.toggle('active', i < editScore));
     }
@@ -1937,19 +1944,19 @@
   };
 
   window.saveEdit = async function() {
-    if (!editMovieId) return;
+    if (!editBookId) return;
     const isShared = currentMode === 'shared';
     const update = {
       title: document.getElementById('editTitle').value.trim(),
+      author: document.getElementById('editAuthor').value.trim(),
       year: document.getElementById('editYear').value.trim(),
-      poster: document.getElementById('editPoster').value.trim(),
-      watchedDate: document.getElementById('editWatchedDate').value || '',
-      watched: !!document.getElementById('editWatchedDate').value
+      cover: document.getElementById('editCover').value.trim(),
+      readDate: document.getElementById('editReadDate').value || '',
+      watched: !!document.getElementById('editReadDate').value
     };
     if (isShared) {
-      // Merge score into reviews object (dot notation breaks on emails with dots)
-      const movie = currentMovies.find(m => m.id === editMovieId);
-      const existingReviews = (movie && movie.reviews) ? Object.assign({}, movie.reviews) : {};
+      const book = currentBooks.find(m => m.id === editBookId);
+      const existingReviews = (book && book.reviews) ? Object.assign({}, book.reviews) : {};
       existingReviews[currentUser.email.toLowerCase()] = { score: editScore, date: new Date().toISOString() };
       update.reviews = existingReviews;
     } else {
@@ -1957,12 +1964,12 @@
       update.notes = document.getElementById('editNotes').value.trim();
     }
     update.genres = getSelectedGenres('editGenres');
-    await updateDoc(doc(db, moviesCollectionPath(), editMovieId), update);
+    await updateDoc(doc(db, booksCollectionPath(), editBookId), update);
     closeEditModal();
   };
 
   window.closeEditModal = function() {
-    editMovieId = null;
+    editBookId = null;
     document.getElementById('editModal').classList.add('hidden');
   };
 
@@ -2149,7 +2156,7 @@
   // Confetti cats celebration
   window.celebrateCats = function() {
     const container = document.getElementById('celebration');
-    const cats = ['\uD83D\uDC08\u200D\u2B1B', '\uD83D\uDC3E', '\u2B50', '\uD83C\uDF1F', '\uD83C\uDFAC', '\uD83C\uDF89'];
+    const cats = ['\uD83D\uDC08\u200D\u2B1B', '\uD83D\uDC3E', '\u2B50', '\uD83C\uDF1F', '\uD83D\uDCDA', '\uD83C\uDF89'];
     for (let i = 0; i < 15; i++) {
       const el = document.createElement('div');
       el.className = 'confetti-cat';
